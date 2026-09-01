@@ -8,15 +8,24 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
 
-    <!-- TELA DE LOGIN / IDENTIFICAÇÃO -->
+    <!-- TELA DE LOGIN / IDENTIFICAÇÃO COM PIX -->
     <div id="tela-login" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-md w-full shadow-2xl text-center">
             <h1 class="text-2xl font-bold text-emerald-400 mb-2">ACCQuestões</h1>
             <p class="text-slate-400 text-sm mb-6">Plataforma de Questões para Concursos</p>
             <input type="text" id="input-usuario" placeholder="Seu Nome ou Apelido" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 mb-4 focus:outline-none focus:border-emerald-500 text-center font-medium">
-            <button onclick="fazerLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-emerald-900/30">
+            <button onclick="fazerLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-emerald-900/30 mb-6">
                 Acessar Plataforma
             </button>
+
+            <!-- ÁREA DO PIX NA TELA DE INÍCIO -->
+            <div class="border-t border-slate-700 pt-4 mt-2">
+                <p class="text-xs text-slate-400 mb-1 font-medium">Gostou do projeto? Contribua via Pix:</p>
+                <div class="bg-slate-900/80 border border-slate-700/80 rounded-xl p-2.5 text-xs text-emerald-400 font-mono select-all">
+                    <!-- Substitua o texto abaixo pela sua chave Pix real se precisar -->
+                    sua-chave-pix-aqui
+                </div>
+            </div>
         </div>
     </div>
 
@@ -78,8 +87,8 @@
 
     <!-- SCRIPT DE LEITURA DIRETA DO GOOGLE SHEETS -->
     <script>
-        // URL de exportação CSV da sua nova Planilha Google
-        const PLANILHA_CSV_URL = "https://docs.google.com/spreadsheets/d/1kfbeLKYNr_9t0ZI-N76ZstvzpLPCOtxACZ9W6kK441Y/export?format=csv";
+        const PLANILHA_ID = "1kfbeLKYNr_9t0ZI-N76ZstvzpLPCOtxACZ9W6kK441Y";
+        const PLANILHA_URL = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?tqx=out:json`;
 
         let bancoDeQuestoes = [];
         let questoesFiltradas = [];
@@ -107,83 +116,46 @@
             }
         };
 
-        // Função para converter CSV em Objeto JS de forma segura
-        function parseCSV(text) {
-            let lines = text.split("\n");
-            let result = [];
-            let headers = lines[0].split(",").map(h => h.trim().replace(/^"(.*)"$/, '$1').toLowerCase());
-
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                let currentline = [];
-                let row = lines[i];
-                let inQuotedField = false;
-                let field = '';
-                
-                for (let c = 0; c < row.length; c++) {
-                    let char = row[c];
-                    if (char === '"' && (c === 0 || row[c-1] === ',' || row[c-1] === '\r')) {
-                        inQuotedField = true;
-                    } else if (char === '"' && inQuotedField && (c === row.length - 1 || row[c+1] === ',')) {
-                        inQuotedField = false;
-                    } else if (char === ',' && !inQuotedField) {
-                        currentline.push(field);
-                        field = '';
-                    } else {
-                        field += char;
-                    }
-                }
-                currentline.push(field);
-
-                let obj = {};
-                for (let j = 0; j < headers.length; j++) {
-                    obj[headers[j]] = currentline[j] ? currentline[j].trim().replace(/^"(.*)"$/, '$1') : "";
-                }
-                result.push(obj);
-            }
-            return result;
-        }
-
         async function carregarQuestoesDaPlanilha() {
             try {
-                const resposta = await fetch(PLANILHA_CSV_URL);
-                const csvText = await resposta.text();
-                const dados = parseCSV(csvText);
+                const resposta = await fetch(PLANILHA_URL);
+                const texto = await resposta.text();
                 
-                if(dados && dados.length > 0) {
-                    bancoDeQuestoes = dados.map(item => {
-                        let alts = [];
-                        if(item.alternativa_a) alts.push({ letra: "A", texto: item.alternativa_a });
-                        if(item.alternativa_b) alts.push({ letra: "B", texto: item.alternativa_b });
-                        if(item.alternativa_c) alts.push({ letra: "C", texto: item.alternativa_c });
-                        if(item.alternativa_d) alts.push({ letra: "D", texto: item.alternativa_d });
-                        if(item.alternativa_e) alts.push({ letra: "E", texto: item.alternativa_e });
+                const jsonString = texto.substring(47, texto.length - 2);
+                const json = JSON.parse(jsonString);
+                
+                const linhas = json.table.rows;
+                bancoDeQuestoes = linhas.map(row => {
+                    const c = row.c;
+                    return {
+                        id: c[0] ? c[0].v : 1,
+                        materia: c[1] ? c[1].v : "Geral",
+                        banca: c[2] ? c[2].v : "Banca",
+                        orgao: c[3] ? c[3].v : "Órgão",
+                        cargo: c[4] ? c[4].v : "Cargo",
+                        nivel: c[5] ? c[5].v : "Médio",
+                        enunciado: c[6] ? c[6].v : "",
+                        alternativas: [
+                            c[7] ? { letra: "A", texto: c[7].v } : null,
+                            c[8] ? { letra: "B", texto: c[8].v } : null,
+                            c[9] ? { letra: "C", texto: c[9].v } : null,
+                            c[10] ? { letra: "D", texto: c[10].v } : null,
+                            c[11] ? { letra: "E", texto: c[11].v } : null
+                        ].filter(Boolean),
+                        gabarito: c[12] ? c[12].v.trim().toUpperCase() : "A",
+                        comentario: c[13] ? c[13].v : "Sem comentário cadastrado."
+                    };
+                });
 
-                        return {
-                            id: item.id || 1,
-                            materia: item.materia || "Geral",
-                            banca: item.banca || "Cebraspe",
-                            cargo: item.cargo || "Soldado",
-                            nivel: item.nivel || "Médio",
-                            orgao: item.orgao || "Concurso / 2026",
-                            enunciado: item.enunciado || "",
-                            alternativas: alts,
-                            gabarito: item.gabarito ? item.gabarito.trim().toUpperCase() : "A",
-                            comentario: item.comentario || "Sem comentário cadastrado."
-                        };
-                    });
-
-                    questoesFiltradas = [...bancoDeQuestoes];
-
-                    if(localStorage.getItem('acc_last_index')) {
-                        const savedIdx = parseInt(localStorage.getItem('acc_last_index'));
-                        if(savedIdx < questoesFiltradas.length) questaoAtualIndice = savedIdx;
-                    }
+                questoesFiltradas = [...bancoDeQuestoes];
+                if(questoesFiltradas.length > 0) {
                     carregarQuestao();
+                } else {
+                    document.getElementById("texto-enunciado").innerText = "A planilha está vazia ou sem questões cadastradas.";
                 }
             } catch(erro) {
                 console.error("Erro ao carregar planilha:", erro);
-                document.getElementById("texto-enunciado").innerText = "Erro ao carregar questões da planilha. Verifique a conexão.";
+                document.getElementById("texto-enunciado").innerText = "Erro ao carregar questões da planilha. Verifique se a planilha está pública.";
             }
         }
 
@@ -217,8 +189,6 @@
             const btn = document.getElementById("btn-responder");
             btn.innerText = "Responder";
             btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-emerald-900/30 transition flex items-center gap-2 flex-grow justify-center";
-
-            localStorage.setItem('acc_last_index', questaoAtualIndice);
         }
 
         function selecionarAlternativa(letra) {
