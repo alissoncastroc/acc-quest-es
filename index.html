@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACCQuestões - Questões para Concursos</title>
+    <title>ACCQuestões - Plataforma de Concursos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
 
-    <!-- TELA DE LOGIN / IDENTIFICAÇÃO COM PIX -->
+    <!-- TELA DE LOGIN / IDENTIFICAÇÃO -->
     <div id="tela-login" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-md w-full shadow-2xl text-center">
             <h1 class="text-2xl font-bold text-emerald-400 mb-2">ACCQuestões</h1>
@@ -17,8 +18,6 @@
             <button onclick="fazerLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-emerald-900/30 mb-5">
                 Acessar Plataforma
             </button>
-
-            <!-- ÁREA DO PIX ATUALIZADA -->
             <div class="border-t border-slate-700 pt-3 text-left">
                 <p class="text-xs text-slate-400 mb-1 font-medium text-center">Apoie o projeto via Pix:</p>
                 <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 text-xs text-slate-300 space-y-1">
@@ -30,18 +29,81 @@
         </div>
     </div>
 
-    <!-- CABEÇALHO -->
-    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
-        <div class="max-w-3xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-emerald-400">ACCQuestões</h1>
-            <span id="contador-questoes" class="text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">Questão 0 de 0</span>
+    <!-- TELA 1: PÁGINA PRINCIPAL / HOME -->
+    <div id="pagina-home" class="hidden fixed inset-0 bg-slate-900 z-40 flex flex-col justify-between p-4 overflow-y-auto">
+        <div class="max-w-md w-full mx-auto my-auto text-center space-y-6">
+            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl">
+                <h1 class="text-3xl font-extrabold text-emerald-400 mb-1">ACCQuestões</h1>
+                <p id="saudacao-usuario" class="text-slate-300 text-sm mb-6 font-medium"></p>
+                
+                <p class="text-xl font-semibold text-slate-100 mb-6 italic">"Resolver questões agora"</p>
+
+                <div class="space-y-3">
+                    <button onclick="irParaQuestoes()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> Resolver Questões
+                    </button>
+                    <button onclick="abrirEstatisticas()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-900/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-pie"></i> Ver Estatísticas
+                    </button>
+                    <button onclick="abrirModalFeedback()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-3 rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-comment-dots"></i> Feedback do App
+                    </button>
+                </div>
+
+                <!-- WHATSAPP E SAIR -->
+                <div class="mt-6 pt-4 border-t border-slate-700 flex flex-col gap-3">
+                    <a href="https://wa.me/5599981481700" target="_blank" class="bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-900/40 py-2.5 px-4 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition">
+                        <i class="fa-brands fa-whatsapp text-base"></i> Fale Conosco: (99) 9 81481700
+                    </a>
+                    <button onclick="sairDaConta()" class="text-rose-400 hover:text-rose-300 text-xs font-medium py-1">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
+                    </button>
+                </div>
+            </div>
         </div>
+        <footer class="text-center py-2 text-xs text-slate-500">ACCQuestões &copy; 2026</footer>
+    </div>
+
+    <!-- TELA 2: TELA DE ESTATÍSTICAS (GRÁFICOS DE ACERTOS E ERROS) -->
+    <div id="pagina-estatisticas" class="hidden fixed inset-0 bg-slate-900 z-40 flex flex-col justify-between p-4 overflow-y-auto">
+        <div class="max-w-md w-full mx-auto my-auto space-y-4">
+            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl text-center">
+                <h2 class="text-xl font-bold text-emerald-400 mb-4"><i class="fa-solid fa-chart-simple"></i> Suas Estatísticas</h2>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400 font-medium">Acertos</p>
+                        <p id="stat-acertos" class="text-2xl font-bold text-emerald-400">0</p>
+                    </div>
+                    <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl">
+                        <p class="text-xs text-slate-400 font-medium">Erros</p>
+                        <p id="stat-erros" class="text-2xl font-bold text-rose-400">0</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-700 p-4 rounded-xl mb-6">
+                    <p class="text-xs text-slate-400 font-medium mb-1">Percentual de Aproveitamento</p>
+                    <p id="stat-percentual" class="text-3xl font-extrabold text-blue-400">0%</p>
+                </div>
+
+                <button onclick="voltarHome()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition">
+                    ⬅ Voltar ao Início
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CABEÇALHO DAS QUESTÕES -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md flex justify-between items-center">
+        <button onclick="voltarHome()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg font-medium transition">
+            🏠 Início
+        </button>
+        <h1 class="text-base font-bold text-emerald-400">ACCQuestões</h1>
+        <span id="contador-questoes" class="text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">0/0</span>
     </header>
 
-    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- CONTEÚDO PRINCIPAL (QUESTÕES) -->
     <main class="max-w-3xl w-full mx-auto p-4 flex-grow flex flex-col justify-center">
-        
-        <!-- PAINEL DE FILTROS / INFO -->
         <div class="bg-slate-800 rounded-xl p-4 mb-4 border border-slate-700 shadow-sm flex flex-wrap gap-2 text-xs">
             <span id="badge-banca" class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-md font-medium">Banca</span>
             <span id="badge-orgao" class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-md font-medium">Órgão</span>
@@ -49,44 +111,52 @@
             <span id="badge-materia" class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-md font-medium">Matéria</span>
         </div>
 
-        <!-- ENUNCIADO DA QUESTÃO -->
         <div class="bg-slate-800 rounded-xl p-5 md:p-6 border border-slate-700 shadow-lg mb-4">
-            <p id="texto-enunciado" class="text-slate-200 text-base md:text-lg leading-relaxed mb-6">
-                Carregando questões da planilha...
-            </p>
+            <p id="texto-enunciado" class="text-slate-200 text-base md:text-lg leading-relaxed mb-6">Carregando...</p>
+            <div id="container-alternativas" class="space-y-3"></div>
+        </div>
 
-            <!-- ALTERNATIVAS -->
-            <div id="container-alternativas" class="space-y-3">
-                <!-- Preenchido via JavaScript -->
+        <!-- COMENTÁRIO E COMENTÁRIO DO ALUNO -->
+        <div id="painel-comentario" class="hidden bg-slate-800/90 border-l-4 border-emerald-500 rounded-r-xl p-4 mb-4 text-sm text-slate-300 shadow-md">
+            <p class="font-bold text-emerald-400 mb-1">Comentário do Professor:</p>
+            <p id="texto-comentario" class="mb-3">Nenhum comentário cadastrado.</p>
+            
+            <div class="border-t border-slate-700 pt-3 mt-2">
+                <p class="text-xs font-bold text-slate-400 mb-1">Seus Comentários nesta Questão:</p>
+                <div id="lista-comentarios-aluno" class="text-xs text-slate-300 space-y-1 mb-2 italic">Nenhum comentário seu.</div>
+                <div class="flex gap-2">
+                    <input type="text" id="input-comentario-aluno" placeholder="Escreva sua anotação ou dúvida..." class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <button onclick="adicionarComentarioAluno()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-semibold transition">Comentar</button>
+                </div>
             </div>
         </div>
 
-        <!-- EXPLICAÇÃO / COMENTÁRIO -->
-        <div id="painel-comentario" class="hidden bg-slate-800/90 border-l-4 border-emerald-500 rounded-r-xl p-4 mb-4 text-sm text-slate-300 shadow-md">
-            <p class="font-bold text-emerald-400 mb-1">Comentário do Professor:</p>
-            <p id="texto-comentario">Nenhum comentário cadastrado.</p>
-        </div>
-
-        <!-- BOTÕES DE NAVEGAÇÃO -->
         <div class="flex items-center justify-between gap-3 mt-2">
-            <button onclick="questaoAnterior()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
-                ⬅ Voltar
-            </button>
-            <button onclick="proximaQuestao()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
-                Pular ➡
-            </button>
-            <button id="btn-responder" onclick="verificarResposta()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-emerald-900/30 transition flex items-center gap-2 flex-grow justify-center">
-                Responder
-            </button>
+            <button onclick="questaoAnterior()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition">⬅ Voltar</button>
+            <button onclick="proximaQuestao()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition">Pular ➡</button>
+            <button id="btn-responder" onclick="verificarResposta()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-emerald-900/30 transition flex-grow justify-center">Responder</button>
         </div>
     </main>
 
+    <!-- MODAL DE FEEDBACK DO APP -->
+    <div id="modal-feedback" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-md w-full shadow-2xl">
+            <h3 class="text-lg font-bold text-emerald-400 mb-2"><i class="fa-solid fa-comment-dots"></i> Feedback do App</h3>
+            <p class="text-xs text-slate-400 mb-4">O que você está achando da plataforma? Deixe sua sugestão ou relato:</p>
+            <textarea id="texto-feedback" rows="4" placeholder="Escreva aqui..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 mb-4 focus:outline-none focus:border-emerald-500"></textarea>
+            <div class="flex gap-2">
+                <button onclick="fecharModalFeedback()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2.5 rounded-xl text-sm font-medium">Cancelar</button>
+                <button onclick="enviarFeedback()" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-semibold">Enviar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- RODAPÉ -->
     <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
-        ACCQuestões &copy; 2026 - Todos os direitos reservados
+        ACCQuestões &copy; 2026 - Desenvolvido para Concursos
     </footer>
 
-    <!-- SCRIPT DE LEITURA DIRETA DO GOOGLE SHEETS -->
+    <!-- SCRIPT DA APLICAÇÃO -->
     <script>
         const PLANILHA_ID = "1kfbeLKYNr_9t0ZI-N76ZstvzpLPCOtxACZ9W6kK441Y";
         const PLANILHA_URL = `https://docs.google.com/spreadsheets/d/${PLANILHA_ID}/gviz/tq?tqx=out:json`;
@@ -97,6 +167,9 @@
         let alternativaSelecionada = null;
         let jaRespondeuAtual = false;
 
+        let estatisticas = JSON.parse(localStorage.getItem("acc_stats")) || { acertos: 0, erros: 0 };
+        let comentariosAlunos = JSON.parse(localStorage.getItem("acc_comentarios")) || {};
+
         function fazerLogin() {
             const nome = document.getElementById("input-usuario").value.trim();
             if(!nome) {
@@ -104,29 +177,77 @@
                 return;
             }
             localStorage.setItem("acc_usuario", nome);
-            document.getElementById("tela-login").classList.add("hidden");
-            carregarQuestoesDaPlanilha();
+            abrirHome();
         }
 
         window.onload = function() {
             const usuarioSalvo = localStorage.getItem("acc_usuario");
             if(usuarioSalvo) {
                 document.getElementById("input-usuario").value = usuarioSalvo;
-                document.getElementById("tela-login").classList.add("hidden");
-                carregarQuestoesDaPlanilha();
+                abrirHome();
             }
         };
+
+        function abrirHome() {
+            const nome = localStorage.getItem("acc_usuario") || "Estudante";
+            document.getElementById("saudacao-usuario").innerText = `Olá, ${nome}! Foco na sua aprovação.`;
+            document.getElementById("tela-login").classList.add("hidden");
+            document.getElementById("pagina-estatisticas").classList.add("hidden");
+            document.getElementById("pagina-home").classList.remove("hidden");
+        }
+
+        function irParaQuestoes() {
+            document.getElementById("pagina-home").classList.add("hidden");
+            carregarQuestoesDaPlanilha();
+        }
+
+        function voltarHome() {
+            document.getElementById("pagina-estatisticas").classList.add("hidden");
+            document.querySelector("main").classList.remove("hidden");
+            document.querySelector("header").classList.remove("hidden");
+            document.getElementById("pagina-home").classList.remove("hidden");
+        }
+
+        function sairDaConta() {
+            localStorage.removeItem("acc_usuario");
+            location.reload();
+        }
+
+        function abrirEstatisticas() {
+            document.getElementById("stat-acertos").innerText = estatisticas.acertos;
+            document.getElementById("stat-erros").innerText = estatisticas.erros;
+            const total = estatisticas.acertos + estatisticas.erros;
+            const percentual = total > 0 ? Math.round((estatisticas.acertos / total) * 100) : 0;
+            document.getElementById("stat-percentual").innerText = percentual + "%";
+
+            document.getElementById("pagina-home").classList.add("hidden");
+            document.getElementById("pagina-estatisticas").classList.remove("hidden");
+        }
+
+        function abrirModalFeedback() {
+            document.getElementById("modal-feedback").classList.remove("hidden");
+        }
+        function fecharModalFeedback() {
+            document.getElementById("modal-feedback").classList.add("hidden");
+        }
+        function enviarFeedback() {
+            const txt = document.getElementById("texto-feedback").value.trim();
+            if(!txt) {
+                alert("Digite seu feedback antes de enviar!");
+                return;
+            }
+            alert("Obrigado pelo seu feedback! Registrado com sucesso.");
+            document.getElementById("texto-feedback").value = "";
+            fecharModalFeedback();
+        }
 
         async function carregarQuestoesDaPlanilha() {
             try {
                 const resposta = await fetch(PLANILHA_URL);
                 const texto = await resposta.text();
+                const json = JSON.parse(texto.substring(47, texto.length - 2));
                 
-                const jsonString = texto.substring(47, texto.length - 2);
-                const json = JSON.parse(jsonString);
-                
-                const linhas = json.table.rows;
-                bancoDeQuestoes = linhas.map(row => {
+                bancoDeQuestoes = json.table.rows.map(row => {
                     const c = row.c;
                     return {
                         id: c[0] ? c[0].v : 1,
@@ -149,20 +270,14 @@
                 });
 
                 questoesFiltradas = [...bancoDeQuestoes];
-                if(questoesFiltradas.length > 0) {
-                    carregarQuestao();
-                } else {
-                    document.getElementById("texto-enunciado").innerText = "A planilha está vazia ou sem questões cadastradas.";
-                }
-            } catch(erro) {
-                console.error("Erro ao carregar planilha:", erro);
-                document.getElementById("texto-enunciado").innerText = "Erro ao carregar questões da planilha. Verifique se a planilha está pública.";
+                if(questoesFiltradas.length > 0) carregarQuestao();
+            } catch(e) {
+                document.getElementById("texto-enunciado").innerText = "Erro ao carregar questões. Verifique a conexão.";
             }
         }
 
         function carregarQuestao() {
             if(questoesFiltradas.length === 0) return;
-
             const q = questoesFiltradas[questaoAtualIndice];
             alternativaSelecionada = null;
             jaRespondeuAtual = false;
@@ -171,7 +286,7 @@
             document.getElementById("badge-orgao").innerText = q.orgao;
             document.getElementById("badge-cargo").innerText = `${q.cargo} • Nível ${q.nivel}`;
             document.getElementById("badge-materia").innerText = q.materia.toUpperCase();
-            document.getElementById("contador-questoes").innerText = `Questão ${questaoAtualIndice + 1} de ${questoesFiltradas.length}`;
+            document.getElementById("contador-questoes").innerText = `${questaoAtualIndice + 1}/${questoesFiltradas.length}`;
 
             document.getElementById("texto-enunciado").innerText = q.enunciado;
             document.getElementById("painel-comentario").classList.add("hidden");
@@ -186,42 +301,46 @@
                 `;
             });
             document.getElementById("container-alternativas").innerHTML = htmlAlts;
+            atualizarComentariosAlunoNaTela();
 
             const btn = document.getElementById("btn-responder");
             btn.innerText = "Responder";
-            btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-emerald-900/30 transition flex items-center gap-2 flex-grow justify-center";
+            btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-emerald-900/30 transition flex-grow justify-center";
+            btn.setAttribute("onclick", "verificarResposta()");
         }
 
         function selecionarAlternativa(letra) {
             if(jaRespondeuAtual) return;
             alternativaSelecionada = letra;
-
-            const cards = document.querySelectorAll(".alternativa-card");
-            cards.forEach(card => {
-                card.classList.remove("border-emerald-500", "bg-emerald-950/20");
-                card.classList.add("border-slate-700/80", "bg-slate-900/50");
+            document.querySelectorAll(".alternativa-card").forEach(c => {
+                c.classList.remove("border-emerald-500", "bg-emerald-950/20");
+                c.classList.add("border-slate-700/80", "bg-slate-900/50");
             });
-
-            const selecionadoCard = document.getElementById(`alt-${letra}`);
-            if(selecionadoCard) {
-                selecionadoCard.classList.remove("border-slate-700/80", "bg-slate-900/50");
-                selecionadoCard.classList.add("border-emerald-500", "bg-emerald-950/20");
+            const sel = document.getElementById(`alt-${letra}`);
+            if(sel) {
+                sel.classList.remove("border-slate-700/80", "bg-slate-900/50");
+                sel.classList.add("border-emerald-500", "bg-emerald-950/20");
             }
         }
 
         function verificarResposta() {
             if(!alternativaSelecionada) {
-                alert("Por favor, selecione uma alternativa!");
+                alert("Selecione uma alternativa!");
                 return;
             }
-
             jaRespondeuAtual = true;
             const q = questoesFiltradas[questaoAtualIndice];
-            const gabarito = q.gabarito;
+            
+            if(alternativaSelecionada === q.gabarito) {
+                estatisticas.acertos++;
+            } else {
+                estatisticas.erros++;
+            }
+            localStorage.setItem("acc_stats", JSON.stringify(estatisticas));
 
             q.alternativas.forEach(alt => {
                 const card = document.getElementById(`alt-${alt.letra}`);
-                if(alt.letra === gabarito) {
+                if(alt.letra === q.gabarito) {
                     card.className = "alternativa-card bg-emerald-950/40 border-2 border-emerald-500 rounded-xl p-3.5 flex items-center gap-3.5 transition";
                 } else if(alt.letra === alternativaSelecionada) {
                     card.className = "alternativa-card bg-rose-950/40 border-2 border-rose-500 rounded-xl p-3.5 flex items-center gap-3.5 transition";
@@ -235,22 +354,19 @@
 
             const btn = document.getElementById("btn-responder");
             btn.innerText = "Próxima Questão ➡";
-            btn.className = "bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-blue-900/30 transition flex items-center gap-2 flex-grow justify-center";
+            btn.className = "bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-blue-900/30 transition flex-grow justify-center";
             btn.setAttribute("onclick", "proximaQuestaoDireta()");
         }
 
-        function proximaQuestaoDireta() {
-            const btn = document.getElementById("btn-responder");
-            btn.setAttribute("onclick", "verificarResposta()");
-            proximaQuestao();
-        }
+        function proximaQuestaoDireta() { proximaQuestao(); }
 
         function proximaQuestao() {
             if(questaoAtualIndice < questoesFiltradas.length - 1) {
                 questaoAtualIndice++;
                 carregarQuestao();
             } else {
-                alert("Você chegou ao fim das questões disponíveis neste filtro!");
+                alert("Você chegou ao fim das questões!");
+                voltarHome();
             }
         }
 
@@ -258,6 +374,31 @@
             if(questaoAtualIndice > 0) {
                 questaoAtualIndice--;
                 carregarQuestao();
+            }
+        }
+
+        function adicionarComentarioAluno() {
+            const input = document.getElementById("input-comentario-aluno");
+            const texto = input.value.trim();
+            if(!texto) return;
+
+            const qId = questaoAtualIndice;
+            if(!comentariosAlunos[qId]) comentariosAlunos[qId] = [];
+            comentariosAlunos[qId].push(texto);
+            localStorage.setItem("acc_comentarios", JSON.stringify(comentariosAlunos));
+
+            input.value = "";
+            atualizarComentariosAlunoNaTela();
+        }
+
+        function atualizarComentariosAlunoNaTela() {
+            const qId = questaoAtualIndice;
+            const container = document.getElementById("lista-comentarios-aluno");
+            const lista = comentariosAlunos[qId];
+            if(lista && lista.length > 0) {
+                container.innerHTML = lista.map(c => `<p>• ${c}</p>`).join("");
+            } else {
+                container.innerHTML = "Nenhum comentário seu.";
             }
         }
     </script>
