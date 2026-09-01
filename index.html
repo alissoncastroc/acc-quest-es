@@ -3,6 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACCQuestões - Questões para Concursos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-emerald-400">ACCQuestões</h1>
+            <span id="contador-questoes" class="text-xs bg-slate-700 px-2.5 py-1 rounded-full text-slate-300">Questão 0 de 0</span>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-3xl w-full mx-auto p-4 flex-grow flex flex-col justify-center">
+        
+        <!-- PAINEL DE FILTROS / INFO -->
+        <div class="bg-slate-800 rounded-xl p-4 mb-4 border border-slate-700 shadow-sm flex flex-wrap gap-2 text-xs">
+            <span id="badge-banca" class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-md font-medium">Banca</span>
+            <span id="badge-orgao" class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-md font-medium">Órgão</span>
+            <span id="badge-cargo" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-md font-medium">Cargo</span>
+            <span id="badge-materia" class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-md font-medium">Matéria</span>
+        </div>
+
+        <!-- ENUNCIADO DA QUESTÃO -->
+        <div class="bg-slate-800 rounded-xl p-5 md:p-6 border border-slate-700 shadow-lg mb-4">
+            <p id="texto-enunciado" class="text-slate-200 text-base md:text-lg leading-relaxed mb-6">
+                Carregando questões da planilha...
+            </p>
+
+            <!-- ALTERNATIVAS -->
+            <div id="container-alternativas" class="space-y-3">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- EXPLICAÇÃO / COMENTÁRIO (Oculto inicialmente) -->
+        <div id="painel-comentario" class="hidden bg-slate-800/90 border-l-4 border-emerald-500 rounded-r-xl p-4 mb-4 text-sm text-slate-300 shadow-md">
+            <p class="font-bold text-emerald-400 mb-1">Comentário do Professor:</p>
+            <p id="texto-comentario">Nenhum comentário cadastrado.</p>
+        </div>
+
+        <!-- BOTÕES DE NAVEGAÇÃO -->
+        <div class="flex items-center justify-between gap-3 mt-2">
+            <button onclick="questaoAnterior()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
+                ⬅ Voltar
+            </button>
+            <button onclick="proximaQuestao()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
+                Pular ➡
+            </button>
+            <button id="btn-responder" onclick="verificarResposta()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-emerald-900/30 transition flex items-center gap-2 flex-grow justify-center">
+                Responder
+            </button>
+        </div>
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
+        ACCQuestões &copy; 2026 - Todos os direitos reservados
+    </footer>
+
+    <!-- SCRIPT DE INTEGRAÇÃO COM A PLANILHA GOOGLE (API STEIN) -->
+    <script>
+        // URL da sua API Stein ligada ao Google Sheets
+        const PLANILHA_URL = "https://api.stein.rest/v1/studios/67ca2b6e51240a232f38d33d/questoes";
+
+        let bancoDeQuestoes = [];
+        let questoesFiltradas = [];
+        let questaoAtualIndice = 0;
+        let alternativaSelecionada = null;
+        let jaRespondeuAtual = false;
+
+        // Buscar dados direto da Planilha Google via Stein API (Com suporte a Múltipla Escolha)
+        async function carregarQuestoesDaPlanilha() {
+            try {
+                const resposta = await fetch(PLANILHA_URL);
+                const dados = await resposta.json();
+                
+                if(dados && dados.length > 0) {
+                    bancoDeQuestoes = dados.map(item => {
+                        let alts = [];
+                        if(item.alternativa_a) alts.push({ letra: "A", texto: item.alternativa_a });
+                        if(item.alternativa_b) alts.push({ letra: "B", texto: item.alternativa_b });
+                        if(item.alternativa_c) alts.push({ letra: "C", texto: item.alternativa_c });
+                        if(item.alternativa_d) alts.push({ letra: "D", texto: item.alternativa_d });
+                        if(item.alternativa_e) alts.push({ letra: "E", texto: item.alternativa_e });
+
+                        return {
+                            id: item.id || 1,
+                            materia: item.materia || "Geral",
+                            banca: item.banca || "Cebraspe",
+                            cargo: item.cargo || "Soldado",
+                            nivel: item.nivel || "Médio",
+                            orgao: item.orgao || "Concurso / 2026",
+                            enunciado: item.enunciado || "",
+                            alternativas: alts,
+                            gabarito: item.gabarito ? item.gabarito.trim().toUpperCase() : "A",
+                            comentario: item.comentario || "Sem comentário cadastrado."
+                        };
+                    });
+
+                    questoesFiltradas = [...bancoDeQuestoes];
+
+                    if(localStorage.getItem('acc_last_index')) {
+                        const savedIdx = parseInt(localStorage.getItem('acc_last_index'));
+                        if(savedIdx < questoesFiltradas.length) questaoAtualIndice = savedIdx;
+                    }
+                    carregarQuestao();
+                }
+            } catch(erro) {
+                console.error("Erro ao carregar planilha:", erro);
+                document.getElementById("texto-enunciado").innerText = "Erro ao carregar questões da planilha. Verifique a conexão.";
+            }
+        }
+
+        function carregarQuestao() {
+            if(questoesFiltradas.length === 0) return;
+
+            const q = questoesFiltradas[questaoAtualIndice];
+            alternativaSelecionada = null;
+            jaRespondeuAtual = false;
+
+            // Atualiza tags de info
+            document.getElementById("badge-banca").innerText = q.banca;
+            document.getElementById("badge-orgao").innerText = q.orgao;
+            document.getElementById("badge-cargo").innerText = `${q.cargo} • Nível ${q.nivel}`;
+            document.getElementById("badge-materia").innerText = q.materia.toUpperCase();
+            document.getElementById("contador-questoes").innerText = `Questão ${questaoAtualIndice + 1} de ${questoesFiltradas.length}`;
+
+            // Enunciado
+            document.getElementById("texto-enunciado").innerText = q.enunciado;
+
+            // Esconde comentário anterior
+            document.getElementById("painel-comentario").classList.add("hidden");
+
+            // Renderiza Alternativas dinamicamente (seja Certo/Errado ou Múltipla Escolha)
+            let htmlAlts = "";
+            q.alternativas.forEach(alt => {
+                htmlAlts += `
+                    <div onclick="selecionarAlternativa('${alt.letra}')" id="alt-${alt.letra}" class="alternativa-card bg-slate-900/50 border border-slate-700/80 hover:border-slate-500 rounded-xl p-3.5 flex items-center gap-3.5 cursor-pointer transition">
+                        <span class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm border border-slate-700">${alt.letra}</span>
+                        <span class="text-slate-200 text-sm md:text-base flex-grow">${alt.texto}</span>
+                    </div>
+                `;
+            });
+            document.getElementById("container-alternativas").innerHTML = htmlAlts;
+
+            // Reseta botão de responder
+            const btn = document.getElementById("btn-responder");
+            btn.innerText = "Responder";
+            btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-emerald-900/30 transition flex items-center gap-2 flex-grow justify-center";
+
+            localStorage.setItem('acc_last_index', questaoAtualIndice);
+        }
+
+        function selecionarAlternativa(letra) {
+            if(jaRespondeuAtual) return;
+            alternativaSelecionada = letra;
+
+            // Remove destaque de todas e destaca a selecionada
+            const cards = document.querySelectorAll(".alternativa-card");
+            cards.forEach(card => {
+                card.classList.remove("border-emerald-500", "bg-emerald-950/20");
+                card.classList.add("border-slate-700/80", "bg-slate-900/50");
+            });
+
+            const selecionadoCard = document.getElementById(`alt-${letra}`);
+            if(selecionadoCard) {
+                selecionadoCard.classList.remove("border-slate-700/80", "bg-slate-900/50");
+                selecionadoCard.classList.add("border-emerald-500", "bg-emerald-950/20");
+            }
+        }
+
+        function verificarResposta() {
+            if(!alternativaSelecionada) {
+                alert("Por favor, selecione uma alternativa!");
+                return;
+            }
+
+            jaRespondeuAtual = true;
+            const q = questoesFiltradas[questaoAtualIndice];
+            const gabarito = q.gabarito;
+
+            // Pinta correto e errado
+            q.alternativas.forEach(alt => {
+                const card = document.getElementById(`alt-${alt.letra}`);
+                if(alt.letra === gabarito) {
+                    card.className = "alternativa-card bg-emerald-950/40 border-2 border-emerald-500 rounded-xl p-3.5 flex items-center gap-3.5 transition";
+                } else if(alt.letra === alternativaSelecionada) {
+                    card.className = "alternativa-card bg-rose-950/40 border-2 border-rose-500 rounded-xl p-3.5 flex items-center gap-3.5 transition";
+                } else {
+                    card.style.opacity = "0.5";
+                }
+            });
+
+            // Mostra comentário
+            document.getElementById("texto-comentario").innerText = q.comentario;
+            document.getElementById("painel-comentario").classList.remove("hidden");
+
+            // Muda botão para Próxima
+            const btn = document.getElementById("btn-responder");
+            btn.innerText = "Próxima Questão ➡";
+            btn.className = "bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-medium text-sm shadow-lg shadow-blue-900/30 transition flex items-center gap-2 flex-grow justify-center";
+            btn.setAttribute("onclick", "proximaQuestaoDireta()");
+        }
+
+        function proximaQuestaoDireta() {
+            const btn = document.getElementById("btn-responder");
+            btn.setAttribute("onclick", "verificarResposta()");
+            proximaQuestao();
+        }
+
+        function proximaQuestao() {
+            if(questaoAtualIndice < questoesFiltradas.length - 1) {
+                questaoAtualIndice++;
+                carregarQuestao();
+            } else {
+                alert("Você chegou ao fim das questões disponíveis neste filtro!");
+            }
+        }
+
+        function questaoAnterior() {
+            if(questaoAtualIndice > 0) {
+                questaoAtualIndice--;
+                carregarQuestao();
+            }
+        }
+
+        // Inicializa ao carregar a página
+        window.onload = carregarQuestoesDaPlanilha;
+    </script>
+</body>
+</html>
+ html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACCQuestões - Sistema de Questões para Carreiras Policiais</title>
     <!-- Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
