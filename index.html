@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACCQuestões - Sistema de Questões para Carreiras Policiais</title>
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos do Sistema -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background-color: #1e293b; border-bottom: 1px solid #334155; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .max { max-width: 76rem; margin: 0 auto; width: 100%; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .stats-container { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .stats-box { background: rgba(15, 23, 42, 0.8); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(51, 65, 85, 0.5); display: flex; gap: 1rem; }
+        .stat-item { text-align: center; }
+        .divider { width: 1px; background-color: #334155; }
+        
+        /* Gráfico em Pizza (Donut) */
+        .chart-box { display: flex; align-items: center; gap: 0.75rem; background: rgba(15, 23, 42, 0.8); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(51, 65, 85, 0.5); }
+        .pie-chart { width: 45px; height: 45px; border-radius: 50%; background: conic-gradient(#10b981 0deg 0deg, #334155 0deg 360deg); display: flex; align-items: center; justify-content: center; transition: 0.3s; position: relative; }
+        .pie-chart::after { content: ''; width: 30px; height: 30px; background-color: #0f172a; border-radius: 50%; position: absolute; }
+        .chart-legend { font-size: 0.7rem; color: #94a3b8; display: flex; flex-direction: column; gap: 0.15rem; }
+
+        main { flex-grow: 1; padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        section { background-color: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        .filters { display: flex; flex-direction: column; gap: 1rem; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; width: 100%; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        select, input { background-color: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.6rem; color: #e2e8f0; font-size: 0.875rem; outline: none; width: 100%; }
+        select:focus, input:focus { border-color: #f59e0b; }
+        button { cursor: pointer; transition: 0.2s; border: none; font-weight: bold; border-radius: 0.75rem; padding: 0.6rem 1.2rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+        .btn-filter { background-color: #d97706; color: #0f172a; justify-content: center; width: 100%; }
+        .btn-filter:hover { background-color: #f59e0b; }
+        .btn-responder { background-color: #059669; color: #ffffff; }
+        .btn-responder:hover { background-color: #10b981; }
+        .btn-voltar { background-color: #334155; color: #ffffff; }
+        .btn-voltar:hover { background-color: #475569; }
+        .btn-pular { background-color: #475569; color: #ffffff; }
+        .btn-pular:hover { background-color: #64748b; }
+        .btn-proxima { background-color: #2563eb; color: #ffffff; }
+        .btn-proxima:hover { background-color: #3b82f6; }
+        .btn-comentar { background-color: #6366f1; color: #ffffff; padding: 0.5rem 1rem; border-radius: 0.5rem; }
+        .btn-comentar:hover { background-color: #4f46e5; }
+        .btn-admin { background-color: #334155; color: #fbbf24; border: 1px solid #475569; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.75rem; }
+        .btn-admin:hover { background-color: #475569; }
+        .hidden { display: none !important; }
+        .alt-box { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem; background-color: rgba(15, 23, 42, 0.6); border: 1px solid rgba(51, 65, 85, 0.6); border-radius: 0.75rem; cursor: pointer; transition: 0.2s; color: #cbd5e1; }
+        .alt-box:hover { background-color: #0f172a; border-color: #f59e0b; }
+        .alt-letra { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; background-color: #1e293b; border: 1px solid #334155; font-weight: bold; color: #f59e0b; flex-shrink: 0; }
+        .comentario-box { background-color: #0f172a; border: 1px solid #334155; padding: 1.25rem; border-radius: 0.75rem; font-size: 0.9rem; line-height: 1.6; margin-top: 1rem; }
+        .aluno-comentarios-sec { margin-top: 1.5rem; border-top: 1px solid #334155; padding-top: 1.5rem; }
+        .comentario-item { background-color: rgba(15, 23, 42, 0.5); padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #334155; font-size: 0.875rem; color: #e2e8f0; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+        textarea { background-color: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.75rem; color: #e2e8f0; font-size: 0.875rem; outline: none; width: 100%; resize: vertical; margin-bottom: 0.5rem; }
+        textarea:focus { border-color: #6366f1; }
+        .support-box { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #f59e0b; border-radius: 1rem; padding: 1.25rem; text-align: center; margin-top: 1rem; }
+        footer { background-color: #1e293b; border-top: 1px solid #334155; padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+        
+        /* Tela de Identificação do Aluno */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
+        .login-card { background: #1e293b; border: 1px solid #334155; border-radius: 1.25rem; padding: 2.5rem 2rem; width: 100%; max-width: 26rem; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 1.25rem; }
+        .btn-entrar-app { background-color: #f59e0b; color: #0f172a; width: 100%; justify-content: center; padding: 0.8rem; border-radius: 0.75rem; font-weight: bold; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-entrar-app:hover { background-color: #d97706; }
+
+        /* Perfil do Aluno Logado */
+        .user-profile { display: flex; align-items: center; gap: 0.5rem; background: rgba(15, 23, 42, 0.8); padding: 0.4rem 0.8rem; border-radius: 0.75rem; border: 1px solid rgba(51, 65, 85, 0.5); font-size: 0.85rem; }
+
+        /* Modal Admin */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1e293b; border: 1px solid #334155; border-radius: 1rem; padding: 2rem; width: 90%; max-width: 40rem; max-height: 90vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- Tela de Identificação Inicial (Acesso Rápido Seguro) -->
+    <div id="login-screen">
+        <div class="login-card">
+            <div style="background-color: #f59e0b; color: #0f172a; width: 4rem; height: 4rem; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 1rem; font-size: 2rem; font-weight: 900;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h2 style="font-size: 1.75rem; font-weight: 900; color: #ffffff; margin-bottom: 0.35rem;">ACC<span style="color: #f59e0b;">Questões</span></h2>
+                <p style="font-size: 0.85rem; color: #94a3b8;">Plataforma de Questões para Carreiras Policiais</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; text-align: left;">
+                <label style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Seu Nome ou Apelido</label>
+                <input type="text" id="input-nome-aluno" placeholder="Ex: Alisson Concurseiro">
+            </div>
+            <button onclick="salvarPerfilAluno()" class="btn-entrar-app">
+                <i class="fa-solid fa-right-to-bracket"></i> Acessar Plataforma
+            </button>
+            <p style="font-size: 0.7rem; color: #64748b;">Foco total na sua aprovação nos concursos públicos!</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="max flex flex-col md:flex-row justify-between items-center gap-4" style="flex-direction: row;">
+            <div class="flex items-center gap-3">
+                <div style="background-color: #f59e0b; color: #0f172a; padding: 0.6rem; border-radius: 0.75rem; font-weight: 900; font-size: 1.25rem;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h1 style="font-size: 1.5rem; font-weight: 900; color: #ffffff;">ACC<span style="color: #f59e0b;">Questões</span></h1>
+                    <p style="font-size: 0.75rem; color: #94a3b8;">Plataforma em Nuvem (Stein API)</p>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <!-- Perfil do Aluno Logado -->
+                <div id="user-badge" class="user-profile hidden">
+                    <span style="color: #f59e0b;"><i class="fa-solid fa-user-shield"></i></span>
+                    <span id="user-name" style="font-weight: 600; color: #e2e8f0;">Aluno</span>
+                    <button onclick="fazerLogout()" style="background: transparent; color: #f43f5e; padding: 0.2rem; font-size: 0.8rem; margin-left: 0.5rem;" title="Trocar Usuário"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+
+                <!-- Gráfico em Pizza (Donut) -->
+                <div class="chart-box">
+                    <div id="grafico-pizza" class="pie-chart"></div>
+                    <div class="chart-legend">
+                        <span style="color: #34d399;"><i class="fa-solid fa-square"></i> Certo: <strong id="perc-acerto">0%</strong></span>
+                        <span style="color: #f43f5e;"><i class="fa-solid fa-square"></i> Errado: <strong id="perc-erro">0%</strong></span>
+                    </div>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <span style="color: #94a3b8; font-size: 0.75rem; display:block;">Respondidas</span>
+                        <span id="stat-total" style="font-weight: bold; color: #ffffff;">0</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="stat-item">
+                        <span style="color: #94a3b8; font-size: 0.75rem; display:block;">Acertos</span>
+                        <span id="stat-acertos" style="font-weight: bold; color: #34d399;">0</span>
+                    </div>
+                </div>
+                
+                <button onclick="abrirPainelAdmin()" class="btn-admin">
+                    <i class="fa-solid fa-lock"></i> Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max">
+
+        <!-- Filtros Avançados Completos para Concursos Policiais -->
+        <section class="filters">
+            <h3 style="font-size: 0.9rem; color: #fbbf24; margin-bottom: 0.25rem;"><i class="fa-solid fa-filter"></i> Filtros de Disciplinas (Editais Policiais Atualizados)</h3>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="filtro-materia" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Disciplina</label>
+                    <select id="filtro-materia">
+                        <option value="todas">Todas as Disciplinas</option>
+                        <option value="Constitucional">Direito Constitucional</option>
+                        <option value="Administrativo">Direito Administrativo</option>
+                        <option value="Penal">Direito Penal</option>
+                        <option value="Processual Penal">Direito Processual Penal</option>
+                        <option value="Legislação Especial">Legislação Penal Especial</option>
+                        <option value="Direitos Humanos">Direitos Humanos</option>
+                        <option value="Direito Eleitoral">Direito Eleitoral</option>
+                        <option value="Criminologia">Criminologia</option>
+                        <option value="Medicina Legal">Medicina Legal</option>
+                        <option value="Português">Língua Portuguesa</option>
+                        <option value="Raciocínio Lógico">Raciocínio Lógico-Matemático</option>
+                        <option value="Estatística">Estatística</option>
+                        <option value="Contabilidade">Contabilidade Geral</option>
+                        <option value="Informática">Informática</option>
+                        <option value="Inglês">Língua Inglesa</option>
+                        <option value="Espanhol">Língua Espanhola</option>
+                        <option value="História do MA">História do Maranhão</option>
+                        <option value="Geografia do MA">Geografia do Maranhão</option>
+                        <option value="Legislação PMMA">Legislação da PMMA</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filtro-banca" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Banca</label>
+                    <select id="filtro-banca">
+                        <option value="todas">Todas as Bancas</option>
+                        <option value="Cebraspe">Cebraspe / Cespe</option>
+                        <option value="FGV">FGV</option>
+                        <option value="Vunesp">Vunesp</option>
+                        <option value="AOCP">AOCP / Instituto AOCP</option>
+                        <option value="IBFC">IBFC</option>
+                        <option value="IDECAN">IDECAN</option>
+                        <option value="FCC">FCC</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filtro-cargo" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Cargo</label>
+                    <select id="filtro-cargo">
+                        <option value="todos">Todos os Cargos</option>
+                        <option value="Soldado">Soldado / Praça</option>
+                        <option value="Oficial">Oficial</option>
+                        <option value="Investigador">Investigador / Escrivão</option>
+                        <option value="Delegado">Delegado de Polícia</option>
+                        <option value="Perito">Perito Criminal</option>
+                        <option value="Agente PF/PR">Agente / Papiloscopista / PRF</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="filtro-nivel" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">Nível</label>
+                    <select id="filtro-nivel">
+                        <option value="todos">Todos os Níveis</option>
+                        <option value="Médio">Nível Médio</option>
+                        <option value="Superior">Nível Superior</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="filtrarQuestao()" class="btn-filter">
+                <i class="fa-solid fa-magnifying-glass"></i> Aplicar Filtros e Filtrar Questões
+            </button>
+        </section>
+
+        <!-- Container da Questão -->
+        <section style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 0.75rem; font-size: 0.75rem; color: #94a3b8; font-weight: 500;">
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <span id="q-id-num" style="background-color: #f59e0b; color: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: 900;">Q000</span>
+                    <span id="q-banca" style="background-color: #334155; color: #fbbf24; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: bold;">Banca</span>
+                    <span id="q-orgao" style="background-color: #0f172a; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid #334155;">Órgão / Ano</span>
+                    <span id="q-cargo-nivel" style="background-color: #064e3b; color: #34d399; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: bold;">Cargo / Nível</span>
+                </div>
+                <span id="q-materia" style="color: #f59e0b; font-weight: 600; text-transform: uppercase;">Matéria</span>
+            </div>
+
+            <div style="color: #e2e8f0; font-size: 1rem; line-height: 1.6;" id="q-enunciado">
+                Carregando questões da Planilha Google (Stein)...
+            </div>
+
+            <div id="q-alternativas" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <!-- Injetadas via JS -->
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="btn-voltar" onclick="questaoAnterior()" class="btn-voltar">
+                        <i class="fa-solid fa-backward"></i> Voltar
+                    </button>
+                    <button id="btn-pular" onclick="proximaQuestao()" class="btn-pular">
+                        <i class="fa-solid fa-forward"></i> Pular
+                    </button>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="btn-responder" onclick="verificarResposta()" class="btn-responder">
+                        <i class="fa-solid fa-check"></i> Responder
+                    </button>
+                    <button id="btn-proxima" onclick="proximaQuestao()" class="btn-proxima hidden">
+                        Próxima Questão <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gabarito Comentado -->
+            <div id="q-comentario" class="hidden comentario-box">
+                <div id="status-resposta" style="font-weight: bold; margin-bottom: 0.5rem; font-size: 1rem;"></div>
+                <h4 style="font-weight: bold; color: #fbbf24; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-graduation-cap"></i> Gabarito Comentado pelo Professor:</h4>
+                <p id="q-texto-comentario" style="color: #cbd5e1;"></p>
+            </div>
+
+            <!-- Área de Comentários do Aluno -->
+            <div class="aluno-comentarios-sec">
+                <h4 style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-comments"></i> Anotações e Comentários dos Alunos
+                </h4>
+                
+                <div id="lista-comentarios">
+                    <!-- Comentários injetados aqui -->
+                </div>
+
+                <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 0.75rem;">
+                    <textarea id="novo-comentario" rows="2" placeholder="Deixe seu comentário, dúvida ou mnemônico para esta questão..."></textarea>
+                    <button onclick="adicionarComentario()" class="btn-comentar">
+                        <i class="fa-solid fa-paper-plane"></i> Comentar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Caixa de Apoio ao Desenvolvedor -->
+        <div class="support-box">
+            <h4 style="color: #fbbf24; font-size: 1rem; font-weight: bold; margin-bottom: 0.35rem;"><i class="fa-solid fa-hand-holding-dollar"></i> Apoie o Projeto ACCQuestões</h4>
+            <p style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 0.5rem;">Colabore com o desenvolvedor com qualquer valor e ajude a manter o sistema no ar e gratuito para todos os concurseiros!</p>
+            <p style="font-size: 0.875rem; color: #ffffff; font-weight: 600;">
+                Pix: <span style="color: #34d399;">03345371340</span> | Banco do Brasil | Alisson Castro Carvalho
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Modal do Painel Administrativo -->
+    <div id="modal-admin" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="login-form-div">
+                <h3 style="color: #fbbf24; margin-bottom: 1rem;"><i class="fa-solid fa-lock"></i> Painel do Administrador</h3>
+                <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 1rem;">Insira suas credenciais.</p>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+                    <input type="text" id="admin-user" placeholder="Usuário">
+                    <input type="password" id="admin-pass" placeholder="Senha">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                    <button onclick="fecharPainelAdmin()" style="background-color: #334155; color: #fff;">Cancelar</button>
+                    <button onclick="fazerLoginAdmin()" class="btn-responder">Entrar</button>
+                </div>
+            </div>
+
+            <div id="admin-dashboard" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #334155; padding-bottom: 0.5rem;">
+                    <h3 style="color: #34d399;"><i class="fa-solid fa-user-shield"></i> Painel de Gestão (Planilha Google)</h3>
+                    <button onclick="fecharPainelAdmin()" style="background-color: #ef4444; color: #fff; padding: 0.3rem 0.6rem; font-size: 0.75rem;">Sair</button>
+                </div>
+                <p style="font-size: 0.875rem; color: #cbd5e1; line-height: 1.6;">
+                    Para adicionar novas questões e fazer com que apareçam instantaneamente no app de todos os alunos, basta abrir a sua <strong>Planilha Google</strong> e preencher uma nova linha logo abaixo da questão anterior. As alterações refletem automaticamente para todos os usuários conectados à internet!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>ACCQuestões &copy; 2026 — Todos os direitos reservados.</p>
+        <p>Desenvolvido com excelência por <strong style="color: #fbbf24;">Alisson Castro Carvalho</strong></p>
+    </footer>
+
+    <!-- Script de Gestão e Conexão -->
+    <script>
+        const PLANILHA_URL = 'https://api.steinhq.com/v1/storages/6a96496b92b1163e973a5aa5/Página1';
+
+        let bancoDeQuestoes = [
+            {
+                id: 1,
+                materia: "Penal",
+                banca: "Cebraspe",
+                orgao: "PC-GO / 2023",
+                cargo: "Delegado",
+                nivel: "Superior",
+                enunciado: "Carregando dados da Planilha Google...",
+                alternativas: [{ letra: "A", texto: "Carregando..." }, { letra: "B", texto: "Carregando..." }],
+                gabarito: "A",
+                comentario: "Aguarde a sincronização."
+            }
+        ];
+
+        let questaoAtualIndice = 0;
+        let respostaSelecionada = null;
+        let estatisticas = { total: 0, acertos: 0 };
+        let comentariosSalvos = {};
+
+        if(localStorage.getItem('acc_stats')) {
+            estatisticas = JSON.parse(localStorage.getItem('acc_stats'));
+            atualizarEstatisticasUI();
+        }
+
+        if(localStorage.getItem('acc_comments')) {
+            comentariosSalvos = JSON.parse(localStorage.getItem('acc_comments'));
+        }
+
+        let questoesFiltradas = [...bancoDeQuestoes];
+
+        // Controle de Identificação do Aluno (Local Seguro)
+        function salvarPerfilAluno() {
+            const nomeInput = document.getElementById('input-nome-aluno').value.trim();
+            if(!nomeInput) {
+                alert("Por favor, digite seu nome ou apelido para continuar!");
+                return;
+            }
+            const usuarioObj = { nome: nomeInput };
+            localStorage.setItem('acc_usuario_local', JSON.stringify(usuarioObj));
+            aplicarSessaoAluno(usuarioObj);
+        }
+
+        function aplicarSessaoAluno(user) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('user-badge').classList.remove('hidden');
+            document.getElementById('user-name').innerText = user.nome;
+        }
+
+        function fazerLogout() {
+            localStorage.removeItem('acc_usuario_local');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('user-badge').classList.add('hidden');
+            document.getElementById('input-nome-aluno').value = '';
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const usuarioSalvo = localStorage.getItem('acc_usuario_local');
+            if(usuarioSalvo) {
+                aplicarSessaoAluno(JSON.parse(usuarioSalvo));
+            }
+            carregarQuestoesDaPlanilha();
+        });
+
+        // Buscar dados direto da Planilha Google via Stein API
+        async function carregarQuestoesDaPlanilha() {
+            try {
+                const resposta = await fetch(PLANILHA_URL);
+                const dados = await resposta.json();
+                
+                if(dados && dados.length > 0) {
+                    bancoDeQuestoes = dados.map(item => ({
+                        id: item.id || 1,
+                        materia: item.materia || "Geral",
+                        banca: item.banca || "Cebraspe",
+                        cargo: item.cargo || "Soldado",
+                        nivel: item.nivel || "Médio",
+                        orgao: item.orgao || "Concurso / 2026",
+                        enunciado: item.enunciado || "",
+                        alternativas: [
+                            { letra: "A", texto: item.alternativa_a || "Certo" },
+                            { letra: "B", texto: item.alternativa_b || "Errado" }
+                        ],
+                        gabarito: item.gabarito || "A",
+                        comentario: item.comentario || "Sem comentário cadastrado."
+                    }));
+
+                    questoesFiltradas = [...bancoDeQuestoes];
+
+                    if(localStorage.getItem('acc_last_index')) {
+                        const savedIdx = parseInt(localStorage.getItem('acc_last_index'));
+                        if(savedIdx < questoesFiltradas.length) questaoAtualIndice = savedIdx;
+                    }
+                    carregarQuestao();
+                }
+            } catch(erro) {
+                console.error("Erro ao carregar planilha:", erro);
+                filtrarQuestao();
+            }
+        }
+
+        function filtrarQuestao() {
+            const mat = document.getElementById('filtro-materia').value;
+            const ban = document.getElementById('filtro-banca').value;
+            const car = document.getElementById('filtro-cargo').value;
+            const niv = document.getElementById('filtro-nivel').value;
+
+            questoesFiltradas = bancoDeQuestoes.filter(q => {
+                const matchMat = (mat === 'todas' || q.materia === mat);
+                const matchBan = (ban === 'todas' || q.banca === ban);
+                const matchCar = (car === 'todos' || q.cargo === car);
+                const matchNiv = (niv === 'todos' || q.nivel === niv);
+                return matchMat && matchBan && matchCar && matchNiv;
+            });
+
+            questaoAtualIndice = 0;
+            salvarProgressoIndice();
+            if(questoesFiltradas.length > 0) {
+                carregarQuestao();
+            } else {
+                document.getElementById('q-enunciado').innerText = "Nenhuma questão encontrada para os filtros selecionados.";
+                document.getElementById('q-alternativas').innerHTML = "";
+                document.getElementById('q-id-num').innerText = "Q---";
+                document.getElementById('q-banca').innerText = "---";
+                document.getElementById('q-orgao').innerText = "---";
+                document.getElementById('q-cargo-nivel').innerText = "---";
+                document.getElementById('q-materia').innerText = "---";
+                document.getElementById('btn-responder').classList.add('hidden');
+                document.getElementById('btn-pular').classList.add('hidden');
+                document.getElementById('btn-voltar').classList.add('hidden');
+                document.getElementById('btn-proxima').classList.add('hidden');
+                document.getElementById('q-comentario').classList.add('hidden');
+                document.querySelector('.aluno-comentarios-sec').classList.add('hidden');
+            }
+        }
+
+        function carregarQuestao() {
+            if(questoesFiltradas.length === 0) return;
+            
+            const q = questoesFiltradas[questaoAtualIndice];
+            respostaSelecionada = null;
+            salvarProgressoIndice();
+
+            document.getElementById('q-id-num').innerText = `Q${q.id}`;
+            document.getElementById('q-banca').innerText = q.banca;
+            document.getElementById('q-orgao').innerText = q.orgao;
+            document.getElementById('q-cargo-nivel').innerText = `${q.cargo || 'Geral'} • Nível ${q.nivel || 'Médio'}`;
+            document.getElementById('q-materia').innerText = q.materia;
+            document.getElementById('q-enunciado').innerText = q.enunciado;
+
+            const altContainer = document.getElementById('q-alternativas');
+            altContainer.innerHTML = "";
+
+            q.alternativas.forEach(alt => {
+                const div = document.createElement('div');
+                div.className = "alt-box";
+                div.onclick = () => selecionarAlternativa(alt.letra, div);
+                div.innerHTML = `
+                    <span class="alt-letra">${alt.letra}</span>
+                    <span style="flex-grow: 1; font-size: 0.875rem;">${alt.texto}</span>
+                `;
+                altContainer.appendChild(div);
+            });
+
+            document.getElementById('q-comentario').classList.add('hidden');
+            document.getElementById('btn-responder').classList.remove('hidden');
+            document.getElementById('btn-pular').classList.remove('hidden');
+            document.getElementById('btn-voltar').classList.remove('hidden');
+            document.getElementById('btn-proxima').classList.add('hidden');
+            document.querySelector('.aluno-comentarios-sec').classList.remove('hidden');
+            
+            carregarComentariosDaQuestao(q.id);
+        }
+
+        function selecionarAlternativa(letra, elemento) {
+            respostaSelecionada = letra;
+            const alternativas = document.querySelectorAll('#q-alternativas > div');
+            alternativas.forEach(el => {
+                el.style.borderColor = "rgba(51, 65, 85, 0.6)";
+                el.style.backgroundColor = "rgba(15, 23, 42, 0.6)";
+            });
+            elemento.style.borderColor = "#f59e0b";
+            elemento.style.backgroundColor = "#0f172a";
+        }
+
+        function verificarResposta() {
+            if(!respostaSelecionada) {
+                alert("Por favor, selecione uma alternativa antes de responder!");
+                return;
+            }
+
+            const q = questoesFiltradas[questaoAtualIndice];
+            const alternativasDivs = document.querySelectorAll('#q-alternativas > div');
+
+            estatisticas.total++;
+            const acertou = (respostaSelecionada === q.gabarito);
+            if(acertou) estatisticas.acertos++;
+            
+            salvarEstatisticas();
+            atualizarEstatisticasUI();
+
+            const statusResp = document.getElementById('status-resposta');
+            if(acertou) {
+                statusResp.innerHTML = '<span style="color: #34d399;"><i class="fa-solid fa-circle-check"></i> Parabéns! Você ACERTOU!</span>';
+            } else {
+                statusResp.innerHTML = `<span style="color: #f43f5e;"><i class="fa-solid fa-circle-xmark"></i> Que pena! Você ERROU. O gabarito correto é (${q.gabarito}).</span>`;
+            }
+
+            alternativasDivs.forEach(div => {
+                const letra = div.querySelector('.alt-letra').innerText;
+                div.onclick = null;
+                div.style.cursor = "default";
+                
+                if(letra === q.gabarito) {
+                    div.style.backgroundColor = "rgba(6, 78, 59, 0.4)";
+                    div.style.borderColor = "#10b981";
+                    div.querySelector('.alt-letra').style.backgroundColor = "#059669";
+                    div.querySelector('.alt-letra').style.color = "#ffffff";
+                } else if(letra === respostaSelecionada && !acertou) {
+                    div.style.backgroundColor = "rgba(136, 19, 55, 0.4)";
+                    div.style.borderColor = "#f43f5e";
+                    div.querySelector('.alt-letra').style.backgroundColor = "#e11d48";
+                    div.querySelector('.alt-letra').style.color = "#ffffff";
+                } else {
+                    div.style.opacity = "0.5";
+                }
+            });
+
+            document.getElementById('q-texto-comentario').innerText = q.comentario;
+            document.getElementById('q-comentario').classList.remove('hidden');
+            document.getElementById('btn-responder').classList.add('hidden');
+            document.getElementById('btn-pular').classList.add('hidden');
+            document.getElementById('btn-voltar').classList.remove('hidden');
+            document.getElementById('btn-proxima').classList.remove('hidden');
+        }
+
+        function proximaQuestao() {
+            questaoAtualIndice++;
+            if(questaoAtualIndice >= questoesFiltradas.length) {
+                questaoAtualIndice = 0;
+            }
+            carregarQuestao();
+        }
+
+        function questaoAnterior() {
+            questaoAtualIndice--;
+            if(questaoAtualIndice < 0) {
+                questaoAtualIndice = questoesFiltradas.length - 1;
+            }
+            carregarQuestao();
+        }
+
+        function salvarEstatisticas() {
+            localStorage.setItem('acc_stats', JSON.stringify(estatisticas));
+        }
+
+        function salvarProgressoIndice() {
+            localStorage.setItem('acc_last_index', questaoAtualIndice);
+        }
+
+        function atualizarEstatisticasUI() {
+            document.getElementById('stat-total').innerText = estatisticas.total;
+            document.getElementById('stat-acertos').innerText = estatisticas.acertos;
+
+            const total = estatisticas.total;
+            const acertos = estatisticas.acertos;
+            const percAcerto = total > 0 ? Math.round((acertos / total) * 100) : 0;
+            const percErro = total > 0 ? (100 - percAcerto) : 0;
+
+            document.getElementById('perc-acerto').innerText = percAcerto + "%";
+            document.getElementById('perc-erro').innerText = percErro + "%";
+
+            const anguloAcerto = (acertos / (total || 1)) * 360;
+            const grafico = document.getElementById('grafico-pizza');
+            if(total === 0) {
+                grafico.style.background = `conic-gradient(#334155 0deg 360deg)`;
+            } else {
+                grafico.style.background = `conic-gradient(#10b981 0deg ${anguloAcerto}deg, #f43f5e ${anguloAcerto}deg 360deg)`;
+            }
+        }
+
+        function carregarComentariosDaQuestao(idQuestao) {
+            const lista = document.getElementById('lista-comentarios');
+            lista.innerHTML = '';
+            const comentariosDestaQuestao = comentariosSalvos[idQuestao] || [];
+            if(comentariosDestaQuestao.length === 0) {
+                lista.innerHTML = '<span style="color: #64748b; font-size: 0.75rem; font-style: italic;">Nenhum comentário registrado nesta questão.</span>';
+            } else {
+                comentariosDestaQuestao.forEach((c) => {
+                    lista.innerHTML += `<div class="comentario-item"><span><strong style="color: #f59e0b;">Aluno:</strong> ${c}</span></div>`;
+                });
+            }
+        }
+
+        function adicionarComentario() {
+            const textarea = document.getElementById('novo-comentario');
+            const texto = textarea.value.trim();
+            if(!texto) return;
+
+            const q = questoesFiltradas[questaoAtualIndice];
+            if(!comentariosSalvos[q.id]) comentariosSalvos[q.id] = [];
+            comentariosSalvos[q.id].push(texto);
+            localStorage.setItem('acc_comments', JSON.stringify(comentariosSalvos));
+            textarea.value = '';
+            carregarComentariosDaQuestao(q.id);
+        }
+
+        // PAINEL ADMIN
+        function abrirPainelAdmin() {
+            document.getElementById('modal-admin').classList.remove('hidden');
+        }
+
+        function fecharPainelAdmin() {
+            document.getElementById('modal-admin').classList.add('hidden');
+            document.getElementById('login-form-div').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('admin-user').value = '';
+            document.getElementById('admin-pass').value = '';
+        }
+
+        function fazerLoginAdmin() {
+            const u = document.getElementById('admin-user').value.trim();
+            const p = document.getElementById('admin-pass').value.trim();
+
+            if(u === 'alissoncastroc' && p === 'admin1989') {
+                document.getElementById('login-form-div').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+            } else {
+                alert("Usuário ou senha incorretos!");
+            }
+        }
+    </script>
+</body>
+</html>
