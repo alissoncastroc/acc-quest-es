@@ -76,9 +76,10 @@
         ACCQuestões &copy; 2026 - Todos os direitos reservados
     </footer>
 
-    <!-- SCRIPT DE CONTROLE E API STEIN -->
+    <!-- SCRIPT DE LEITURA DIRETA DO GOOGLE SHEETS -->
     <script>
-        const PLANILHA_URL = "https://api.stein.rest/v1/studios/67ca2b6e51240a232f38d33d/questoes";
+        // URL de exportação CSV da sua nova Planilha Google
+        const PLANILHA_CSV_URL = "https://docs.google.com/spreadsheets/d/1kfbeLKYNr_9t0ZI-N76ZstvzpLPCOtxACZ9W6kK441Y/export?format=csv";
 
         let bancoDeQuestoes = [];
         let questoesFiltradas = [];
@@ -106,10 +107,48 @@
             }
         };
 
+        // Função para converter CSV em Objeto JS de forma segura
+        function parseCSV(text) {
+            let lines = text.split("\n");
+            let result = [];
+            let headers = lines[0].split(",").map(h => h.trim().replace(/^"(.*)"$/, '$1').toLowerCase());
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                let currentline = [];
+                let row = lines[i];
+                let inQuotedField = false;
+                let field = '';
+                
+                for (let c = 0; c < row.length; c++) {
+                    let char = row[c];
+                    if (char === '"' && (c === 0 || row[c-1] === ',' || row[c-1] === '\r')) {
+                        inQuotedField = true;
+                    } else if (char === '"' && inQuotedField && (c === row.length - 1 || row[c+1] === ',')) {
+                        inQuotedField = false;
+                    } else if (char === ',' && !inQuotedField) {
+                        currentline.push(field);
+                        field = '';
+                    } else {
+                        field += char;
+                    }
+                }
+                currentline.push(field);
+
+                let obj = {};
+                for (let j = 0; j < headers.length; j++) {
+                    obj[headers[j]] = currentline[j] ? currentline[j].trim().replace(/^"(.*)"$/, '$1') : "";
+                }
+                result.push(obj);
+            }
+            return result;
+        }
+
         async function carregarQuestoesDaPlanilha() {
             try {
-                const resposta = await fetch(PLANILHA_URL);
-                const dados = await resposta.json();
+                const resposta = await fetch(PLANILHA_CSV_URL);
+                const csvText = await resposta.text();
+                const dados = parseCSV(csvText);
                 
                 if(dados && dados.length > 0) {
                     bancoDeQuestoes = dados.map(item => {
