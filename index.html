@@ -134,7 +134,7 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwi2qqfCE74xO7GY6zIqq7vMa31kQ937H_uVQxZBRlH592mjEORhKeIb1zXBBur-ZPM/exec";
+        const API_URL = "hhttps://script.google.com/macros/s/AKfycbwi2qqfCE74xO7GY6zIqq7vMa31kQ937H_uVQxZBRlH592mjEORhKeIb1zXBBur-ZPM/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -238,10 +238,10 @@
                     htmlOpcoes = `
                         <div class="grid grid-cols-2 gap-3">
                             <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
-                                <input type="radio" name="pergunta-${q.id || index}" value="Certo" class="accent-blue-600"> Certo
+                                <input type="radio" name="pergunta-${q.id || index}" value="CERTO" class="accent-blue-600"> Certo
                             </label>
                             <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
-                                <input type="radio" name="pergunta-${q.id || index}" value="Errado" class="accent-blue-600"> Errado
+                                <input type="radio" name="pergunta-${q.id || index}" value="ERRADO" class="accent-blue-600"> Errado
                             </label>
                         </div>`;
                 } else {
@@ -272,7 +272,7 @@
                         </div>
 
                         <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
-                            <button onclick="responder(this, '${q.gabarito}', \`${q.explicacao || ''}\`, '${q.id || index}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
+                            <button onclick="responder(this, '${q.gabarito}', \`${q.explicacao || ''}\`, '${q.id || index}', ${ehCertoErrado})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
                                 Responder
                             </button>
                             <div id="resultado-${q.id || index}" class="text-xs"></div>
@@ -282,7 +282,7 @@
             }).join('');
         }
 
-        function responder(btn, gabaritoCorreto, explicacao, id) {
+        function responder(btn, gabaritoCorreto, explicacao, id, ehCertoErrado) {
             const selecionada = document.querySelector(`input[name="pergunta-${id}"]:checked`);
             const divResultado = document.getElementById(`resultado-${id}`);
 
@@ -297,13 +297,25 @@
             estatisticas.respondidas++;
             
             const respostaUsuario = selecionada.value.trim().toUpperCase();
-            const gabaritoOficial = gabaritoCorreto.trim().toUpperCase();
+            let gabaritoOficial = gabaritoCorreto.trim().toUpperCase();
+            let textoGabaritoExibicao = gabaritoCorreto.trim();
+
+            // Se for questão Certo/Errado, traduz A/B para Certo/Errado se necessário
+            if (ehCertoErrado) {
+                if (gabaritoOficial === 'A') {
+                    gabaritoOficial = 'CERTO';
+                    textoGabaritoExibicao = 'Certo';
+                } else if (gabaritoOficial === 'B') {
+                    gabaritoOficial = 'ERRADO';
+                    textoGabaritoExibicao = 'Errado';
+                }
+            }
 
             if (respostaUsuario === gabaritoOficial) {
                 estatisticas.acertos++;
-                divResultado.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Correto! Gabarito: ${gabaritoCorreto}</span>`;
+                divResultado.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Correto! Gabarito: ${textoGabaritoExibicao}</span>`;
             } else {
-                divResultado.innerHTML = `<span class="text-red-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> Incorreto. Gabarito: ${gabaritoCorreto}</span>`;
+                divResultado.innerHTML = `<span class="text-red-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> Incorreto. Gabarito: ${textoGabaritoExibicao}</span>`;
             }
 
             if (explicacao && explicacao !== "undefined" && explicacao.trim() !== "") {
