@@ -3,667 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACCQuestões - Plataforma de Questões de Alto Nível</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #cbd5e1;
-            --success: #16a34a;
-            --error: #dc2626;
-            --pix-bg: #f0fdf4;
-            --pix-border: #bbf7d0;
-        }
-
-        body.dark-mode {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --pix-bg: #064e3b;
-            --pix-border: #047857;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 20px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
-
-        header h1 {
-            color: var(--primary);
-            font-size: 24px;
-        }
-
-        .header-actions button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-left: 8px;
-        }
-
-        .header-actions button:hover {
-            background: var(--primary-dark);
-        }
-
-        /* Banner Boas-Vindas Refinado */
-        .welcome-banner {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-            color: white;
-            padding: 24px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(37,99,235,0.2);
-        }
-
-        .welcome-banner h2 {
-            font-size: 22px;
-            margin-bottom: 8px;
-        }
-
-        .welcome-banner p {
-            font-size: 15px;
-            opacity: 0.9;
-        }
-
-        /* Dashboard de Estatísticas */
-        .stats-dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        .stat-card h4 {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .stat-card span {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        /* Layout Principal */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Painel de Filtros Avançado Profissional */
-        .filter-container {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px;
-            height: fit-content;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            margin-bottom: 20px;
-        }
-
-        .filter-container h3 {
-            font-size: 16px;
-            margin-bottom: 12px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .filter-group {
-            margin-bottom: 12px;
-        }
-
-        .filter-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        .filter-group select, 
-        .filter-group input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: var(--card-bg);
-            font-size: 14px;
-            color: var(--text-main);
-            outline: none;
-        }
-
-        .filter-group select:focus, 
-        .filter-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-        }
-
-        .btn-filtrar {
-            width: 100%;
-            padding: 11px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 4px;
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-        }
-
-        .btn-filtrar:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-limpar {
-            width: 100%;
-            padding: 10px;
-            background-color: var(--error);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
-        }
-
-        .btn-limpar:hover {
-            opacity: 0.9;
-        }
-
-        /* Bloco PIX / Apoio */
-        .pix-section {
-            background: var(--pix-bg);
-            border: 1px solid var(--pix-border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-
-        .pix-section h3 {
-            font-size: 15px;
-            color: var(--success);
-            margin-bottom: 8px;
-        }
-
-        .pix-section p {
-            font-size: 13px;
-            color: var(--text-main);
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-
-        .pix-key-box {
-            display: flex;
-            gap: 6px;
-        }
-
-        .pix-key-box input {
-            width: 100%;
-            padding: 8px;
-            font-size: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background: var(--card-bg);
-            color: var(--text-main);
-        }
-
-        .pix-key-box button {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Lista de Questões */
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .question-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            font-weight: 600;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .question-text {
-            font-size: 15px;
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 14px;
-        }
-
-        .option-btn {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            padding: 10px 14px;
-            border-radius: 6px;
-            text-align: left;
-            cursor: pointer;
-            color: var(--text-main);
-            font-size: 14px;
-        }
-
-        .option-btn:hover {
-            background: rgba(37, 99, 235, 0.05);
-            border-color: var(--primary);
-        }
-
-        .option-btn.correct {
-            background-color: rgba(22, 163, 74, 0.15) !important;
-            border-color: var(--success) !important;
-            color: var(--success) !important;
-            font-weight: bold;
-        }
-
-        .option-btn.incorrect {
-            background-color: rgba(220, 38, 38, 0.15) !important;
-            border-color: var(--error) !important;
-            color: var(--error) !important;
-        }
-
-        .explanation {
-            background: rgba(100, 116, 139, 0.08);
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-top: 10px;
-            display: none;
-            border-left: 4px solid var(--primary);
-        }
-    </style>
+    <title>ACCQuestões - Plataforma de Estudos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-    <header>
-        <h1>ACCQuestões</h1>
-        <div class="header-actions">
-            <button onclick="toggleDarkMode()">🌓 Tema</button>
+    <!-- Cabeçalho -->
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">ACCQuestões</h1>
+                    <p class="text-xs text-slate-400">Plataforma de Questões para Concursos</p>
+                </div>
+            </div>
+            <!-- Estatísticas Rápidas -->
+            <div class="flex gap-4 text-sm bg-slate-900/50 px-4 py-2 rounded-lg border border-slate-700/50">
+                <div><span class="text-slate-400">Total:</span> <span id="stat-total" class="font-bold text-blue-400">0</span></div>
+                <div><span class="text-slate-400">Respondidas:</span> <span id="stat-respondidas" class="font-bold text-emerald-400">0</span></div>
+                <div><span class="text-slate-400">Acertos:</span> <span id="stat-acertos" class="font-bold text-green-400">0%</span></div>
+            </div>
         </div>
     </header>
 
-    <!-- Frase de boas-vindas refinada -->
-    <div class="welcome-banner">
-        <h2>Bem-vindo ao ACCQuestões! 🚀</h2>
-        <p>A plataforma definitiva que democratiza o acesso ao conhecimento e revoluciona a sua preparação de alto nível para concursos públicos.</p>
-    </div>
-
-    <!-- Dashboard de Estatísticas -->
-    <div class="stats-dashboard">
-        <div class="stat-card">
-            <h4>Total Resolvidas</h4>
-            <span id="statRespondidas">0</span>
-        </div>
-        <div class="stat-card">
-            <h4>Acertos</h4>
-            <span id="statAcertos" style="color: var(--success);">0</span>
-        </div>
-        <div class="stat-card">
-            <h4>Erros</h4>
-            <span id="statErros" style="color: var(--error);">0</span>
-        </div>
-        <div class="stat-card">
-            <h4>Aproveitamento</h4>
-            <span id="statTaxa">0%</span>
-        </div>
-    </div>
-
-    <div class="main-layout">
-        <!-- Coluna Esquerda: Filtros Avançados + Botão Filtrar + Bloco PIX -->
-        <div>
-            <div class="filter-container">
-                <h3>🔍 Filtrar Questões</h3>
-                
-                <div class="filter-group">
-                    <label>Palavra-chave</label>
-                    <input type="text" id="searchKeyword" placeholder="Pesquisar no enunciado...">
-                </div>
-
-                <div class="filter-group">
-                    <label>Disciplina</label>
-                    <select id="filtroDisciplina">
-                        <option value="">Todas as Disciplinas</option>
-                        <option value="Direito Constitucional">Direito Constitucional</option>
-                        <option value="Direito Administrativo">Direito Administrativo</option>
-                        <option value="Direito Penal">Direito Penal</option>
-                        <option value="Direito Processual Penal">Direito Processual Penal</option>
-                        <option value="Direito Civil">Direito Civil</option>
-                        <option value="Direito Processual Civil">Direito Processual Civil</option>
-                        <option value="Direito Tributário">Direito Tributário</option>
-                        <option value="Direito Empresarial">Direito Empresarial</option>
-                        <option value="Direito do Trabalho">Direito do Trabalho</option>
-                        <option value="Direito Processual do Trabalho">Direito Processual do Trabalho</option>
-                        <option value="Direito Eleitoral">Direito Eleitoral</option>
-                        <option value="Direito Ambiental">Direito Ambiental</option>
-                        <option value="Direitos Humanos">Direitos Humanos</option>
-                        <option value="Legislação Extravagante">Legislação Extravagante</option>
-                        <option value="Informática">Informática</option>
-                        <option value="Língua Portuguesa">Língua Portuguesa</option>
-                        <option value="Raciocínio Lógico">Raciocínio Lógico / Matemática</option>
-                        <option value="Contabilidade Geral">Contabilidade Geral</option>
-                        <option value="Contabilidade Pública">Contabilidade Pública</option>
-                        <option value="Administração Financeira e Orçamentária - AFO">AFO</option>
-                        <option value="Administração Pública">Administração Pública</option>
-                        <option value="Administração Geral">Administração Geral</option>
-                        <option value="Economia">Economia</option>
-                        <option value="Estatística">Estatística</option>
-                        <option value="Geografia do Maranhão">Geografia do Maranhão</option>
-                        <option value="História do Maranhão">História do Maranhão</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label>Banca</label>
-                    <select id="filtroBanca">
-                        <option value="">Todas as Bancas</option>
-                        <option value="Cebraspe">Cebraspe (CESPE)</option>
-                        <option value="FGV">FGV</option>
-                        <option value="FCC">FCC</option>
-                        <option value="Vunesp">Vunesp</option>
-                        <option value="IBFC">IBFC</option>
-                        <option value="IDIB">IDIB</option>
-                        <option value="Instituto AOCP">Instituto AOCP</option>
-                        <option value="AOCP">AOCP</option>
-                        <option value="Cesgranrio">Cesgranrio</option>
-                        <option value="Quadrix">Quadrix</option>
-                        <option value="Consulplan">Consulplan</option>
-                        <option value="FUB">FUB / Outras</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label>Cargo / Carreira</label>
-                    <select id="filtroCargo">
-                        <option value="">Todos os Cargos</option>
-                        <option value="Delegado">Delegado de Polícia</option>
-                        <option value="Investigador">Investigador de Polícia</option>
-                        <option value="Escrivão">Escrivão de Polícia</option>
-                        <option value="Agente">Agente de Polícia / Polícia Penal</option>
-                        <option value="Perito">Perito Criminal</option>
-                        <option value="Juiz">Juiz / Magistratura</option>
-                        <option value="Promotor">Promotor / Ministério Público</option>
-                        <option value="Defensor">Defensor Público</option>
-                        <option value="Procurador">Procurador</option>
-                        <option value="Auditor">Auditor Fiscal / Controle</option>
-                        <option value="Analista">Analista Administrativo / Tribunais</option>
-                        <option value="Técnico">Técnico Judiciário / Administrativo</option>
-                        <option value="Fiscal">Fiscal de Arrecadação / Tributário</option>
-                        <option value="Gestor">Gestor Público</option>
-                        <option value="Assistente">Assistente Administrativo</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label>Escolaridade</label>
-                    <select id="filtroEscolaridade">
-                        <option value="">Todas</option>
-                        <option value="Superior">Superior</option>
-                        <option value="Médio">Médio</option>
-                        <option value="Fundamental">Fundamental</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label>Ano</label>
-                    <select id="filtroAno">
-                        <option value="">Todos os Anos</option>
-                        <option value="2026">2026</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                        <option value="2020">2020</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label>Dificuldade</label>
-                    <select id="filtroDificuldade">
-                        <option value="">Todas</option>
-                        <option value="Fácil">Fácil</option>
-                        <option value="Médio">Médio</option>
-                        <option value="Difícil">Difícil</option>
-                    </select>
-                </div>
-
-                <!-- Botão Filtrar de Destaque -->
-                <button onclick="filtrarQuestoes()" class="btn-filtrar">Filtrar Questões</button>
-                <button onclick="limparFiltros()" class="btn-limpar">Limpar Filtros</button>
-            </div>
-
-            <!-- Bloco PIX / Apoio -->
-            <div class="pix-section">
-                <h3>☕ Apoie o Projeto</h3>
-                <p>Gostou do ACCQuestões? Contribua via Pix para mantermos a plataforma ativa e gratuita!</p>
-                <div class="pix-key-box">
-                    <input type="text" id="pixKey" value="sua-chave-pix-aqui@email.com" readonly>
-                    <button onclick="copiarPix()">Copiar</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Área de Exibição das Questões -->
-        <div class="content-area">
-            <div id="contadorResultados" style="font-weight: 600; font-size: 14px; color: var(--text-muted);">Carregando questões da planilha...</div>
-            <div id="listaQuestoes"></div>
-        </div>
-    </div>
-
-    <script>
-        let questoesBanco = [];
-        let stats = { respondidas: 0, acertos: 0, erros: 0 };
-
-        // Função que busca as questões com a URL oficial atualizada
-        async function carregarQuestoesDaPlanilha() {
-            const urlAPI = "https://script.google.com/macros/s/AKfycbwMfWg4uDNRTP7Q1qnrITb4Pm4egYojUvPPPLrXbLA/exec";
+    <!-- Conteúdo Principal -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Filtros Laterais -->
+        <aside class="lg:col-span-1 bg-slate-800 p-5 rounded-xl border border-slate-700 h-fit space-y-4">
+            <h2 class="font-semibold text-lg border-b border-slate-700 pb-2 flex items-center gap-2">
+                <i class="fa-solid fa-filter text-blue-500"></i> Filtrar Questões
+            </h2>
             
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Disciplina</label>
+                <select id="filtro-disciplina" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-200">
+                    <option value="">Todas as Disciplinas</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Banca</label>
+                <select id="filtro-banca" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-200">
+                    <option value="">Todas as Bancas</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Cargo</label>
+                <select id="filtro-cargo" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-200">
+                    <option value="">Todos os Cargos</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Dificuldade</label>
+                <select id="filtro-dificuldade" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-slate-200">
+                    <option value="">Todas</option>
+                    <option value="Fácil">Fácil</option>
+                    <option value="Média">Média</option>
+                    <option value="Difícil">Difícil</option>
+                </select>
+            </div>
+
+            <button onclick="aplicarFiltros()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg transition text-sm">
+                Filtrar Questões
+            </button>
+        </aside>
+
+        <!-- Lista de Questões -->
+        <section class="lg:col-span-3 space-y-6" id="container-questoes">
+            <div class="text-center py-12 text-slate-400">
+                <i class="fa-solid fa-spinner fa-spin text-3xl mb-2"></i>
+                <p>Carregando questões da base de dados...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="bg-slate-800 border-t border-slate-700 text-center py-4 text-xs text-slate-500 mt-auto">
+        ACCQuestões &copy; 2026 - Todos os direitos reservados.
+    </footer>
+
+    <!-- Script de Integração e Lógica -->
+    <script>
+        // COLE A SUA NOVA URL DO GOOGLE APPS SCRIPT ABAIXO ENTRE AS ASPAS:
+        const API_URL = "SUA_NOVA_URL_DO_GAS_AQUI";
+
+        let todasQuestoes = [];
+        let questoesFiltradas = [];
+        let estatisticas = { respondidas: 0, acertos: 0 };
+
+        async function carregarQuestoes() {
             try {
-                let resposta = await fetch(urlAPI);
-                let dados = await resposta.json();
-                questoesBanco = dados;
-                filtrarQuestoes();
+                const resposta = await fetch(API_URL);
+                const dados = await resposta.json();
+                todasQuestoes = dados;
+                questoesFiltradas = dados;
+                
+                atualizarEstatisticas();
+                popularFiltros(dados);
+                exibirQuestoes(dados);
             } catch (erro) {
-                console.error("Erro ao carregar questões:", erro);
-                document.getElementById("contadorResultados").innerText = "Erro ao carregar dados da planilha. Verifique a conexão.";
+                document.getElementById('container-questoes').innerHTML = `
+                    <div class="bg-red-900/30 border border-red-700 p-4 rounded-xl text-center text-red-300">
+                        <p class="font-bold">Erro ao carregar as questões.</p>
+                        <p class="text-xs mt-1">Verifique se a URL do Apps Script está correta e com acesso público.</p>
+                    </div>`;
             }
         }
 
-        function atualizarDashboard() {
-            document.getElementById("statRespondidas").innerText = stats.respondidas;
-            document.getElementById("statAcertos").innerText = stats.acertos;
-            document.getElementById("statErros").innerText = stats.erros;
-            let taxa = stats.respondidas > 0 ? Math.round((stats.acertos / stats.respondidas) * 100) : 0;
-            document.getElementById("statTaxa").innerText = taxa + "%";
+        function popularFiltros(dados) {
+            const disciplinas = [...new Set(dados.map(q => q.disciplina))].filter(Boolean);
+            const bancas = [...new Set(dados.map(q => q.banca))].filter(Boolean);
+            const cargos = [...new Set(dados.map(q => q.cargo))].filter(Boolean);
+
+            preencherSelect('filtro-disciplina', disciplinas);
+            preencherSelect('filtro-banca', bancas);
+            preencherSelect('filtro-cargo', cargos);
         }
 
-        function filtrarQuestoes() {
-            let keyword = document.getElementById("searchKeyword").value.toLowerCase();
-            let disc = document.getElementById("filtroDisciplina").value;
-            let banca = document.getElementById("filtroBanca").value;
-            let cargo = document.getElementById("filtroCargo").value;
-            let esc = document.getElementById("filtroEscolaridade").value;
-            let ano = document.getElementById("filtroAno").value;
-            let dif = document.getElementById("filtroDificuldade").value;
+        function preencherSelect(id, itens) {
+            const select = document.getElementById(id);
+            itens.sort().forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                select.appendChild(opt);
+            });
+        }
 
-            let filtradas = questoesBanco.filter(q => {
-                let matchKey = q.enunciado && q.enunciado.toLowerCase().includes(keyword);
-                let matchDisc = disc === "" || q.disciplina === disc;
-                let matchBanca = banca === "" || q.banca === banca;
-                let matchCargo = cargo === "" || (q.cargo && q.cargo.toLowerCase().includes(cargo.toLowerCase()));
-                let matchEsc = esc === "" || q.escolaridade === esc;
-                let matchAno = ano === "" || String(q.ano) === String(ano);
-                let matchDif = dif === "" || q.dificuldade === dif;
+        function aplicarFiltros() {
+            const disc = document.getElementById('filtro-disciplina').value;
+            const banca = document.getElementById('filtro-banca').value;
+            const cargo = document.getElementById('filtro-cargo').value;
+            const dif = document.getElementById('filtro-dificuldade').value;
 
-                return matchKey && matchDisc && matchBanca && matchCargo && matchEsc && matchAno && matchDif;
+            questoesFiltradas = todasQuestoes.filter(q => {
+                return (!disc || q.disciplina === disc) &&
+                       (!banca || q.banca === banca) &&
+                       (!cargo || q.cargo === cargo) &&
+                       (!dif || q.dificuldade === dif);
             });
 
-            exibirQuestoes(filtradas);
+            exibirQuestoes(questoesFiltradas);
         }
 
-        function limparFiltros() {
-            document.getElementById("searchKeyword").value = "";
-            document.getElementById("filtroDisciplina").value = "";
-            document.getElementById("filtroBanca").value = "";
-            document.getElementById("filtroCargo").value = "";
-            document.getElementById("filtroEscolaridade").value = "";
-            document.getElementById("filtroAno").value = "";
-            document.getElementById("filtroDificuldade").value = "";
-            filtrarQuestoes();
-        }
+        function exibirQuestoes(questoes) {
+            const container = document.getElementById('container-questoes');
+            document.getElementById('stat-total').textContent = questoes.length;
 
-        function exibirQuestoes(lista) {
-            let container = document.getElementById("listaQuestoes");
-            let contador = document.getElementById("contadorResultados");
-            container.innerHTML = "";
-            contador.innerText = `${lista.length} questão(ões) encontrada(s)`;
-
-            if (lista.length === 0) {
-                container.innerHTML = `<div class="question-card" style="text-align:center; color: var(--text-muted);">Nenhuma questão encontrada com esses filtros.</div>`;
+            if (questoes.length === 0) {
+                container.innerHTML = `<div class="bg-slate-800 p-6 rounded-xl text-center text-slate-400">Nenhuma questão encontrada com esses filtros.</div>`;
                 return;
             }
 
-            lista.forEach(q => {
-                let card = document.createElement("div");
-                card.className = "question-card";
-                
-                let opcoesHtml = "";
-                if (q.opcoes && Array.isArray(q.opcoes)) {
-                    q.opcoes.forEach(op => {
-                        opcoesHtml += `<button class="option-btn" onclick="verificarResposta(this, '${q.id}', '${op.replace(/'/g, "\\'")}', '${q.gabarito.replace(/'/g, "\\'")}')">${op}</button>`;
-                    });
-                }
-
-                card.innerHTML = `
-                    <div class="question-header">
-                        <span>#${q.id} | ${q.disciplina} • ${q.banca} (${q.ano})</span>
-                        <span>${q.cargo} • ${q.escolaridade} • ${q.dificuldade}</span>
+            container.innerHTML = questoes.map((q, index) => `
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-md" id="questao-${q.id || index}">
+                    <div class="flex flex-wrap gap-2 mb-3 text-xs">
+                        <span class="bg-blue-900/60 text-blue-300 px-2.5 py-1 rounded-md font-medium">${q.disciplina || 'Geral'}</span>
+                        <span class="bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md">${q.banca || 'Não informada'}</span>
+                        <span class="bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md">${q.cargo || 'Diversos'}</span>
+                        <span class="bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md">${q.dificuldade || 'Média'}</span>
                     </div>
-                    <div class="question-text">${q.enunciado}</div>
-                    <div class="options-list" id="opts-${q.id}">${opcoesHtml}</div>
-                    <div class="explanation" id="exp-${q.id}"><b>Comentário:</b> ${q.explicacao}</div>
-                `;
-                container.appendChild(card);
-            });
+                    <p class="text-slate-200 text-sm md:text-base mb-4 leading-relaxed">${q.enunciado}</p>
+                    
+                    <div class="space-y-2 mb-4" id="opcoes-${q.id || index}">
+                        ${q.opcoes.map((opt, i) => {
+                            const letra = String.fromCharCode(65 + i);
+                            return `
+                                <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-700/60 bg-slate-900/40 hover:bg-slate-700/30 cursor-pointer transition text-sm">
+                                    <input type="radio" name="pergunta-${q.id || index}" value="${letra}" class="mt-1">
+                                    <span><strong>${letra})</strong> ${opt}</span>
+                                </label>`;
+                        }).join('')}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-700/50">
+                        <button onclick="responder('${q.gabarito}', '${q.explicacao}', '${q.id || index}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-4 py-2 rounded-lg transition">
+                            Responder
+                        </button>
+                        <div id="resultado-${q.id || index}" class="text-xs font-semibold"></div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function verificarResposta(botao, id, escolhida, correta) {
-            let parent = document.getElementById(`opts-${id}`);
-            let botoes = parent.getElementsByClassName("option-btn");
-            let explicacaoDiv = document.getElementById(`exp-${id}`);
+        function responder(gabaritoCorreto, explicacao, id) {
+            const selecionada = document.querySelector(`input[name="pergunta-${id}"]:checked`);
+            const divResultado = document.getElementById(`resultado-${id}`);
 
-            for (let b of botoes) {
-                b.style.pointerEvents = "none";
+            if (!selecionada) {
+                alert("Selecione uma alternativa antes de responder!");
+                return;
             }
 
-            stats.respondidas++;
-            if (escolhida.trim() === correta.trim()) {
-                botao.classList.add("correct");
-                stats.acertos++;
+            estatisticas.respondidas++;
+            if (selecionada.value.trim().toUpperCase() === gabaritoCorreto.trim().toUpperCase()) {
+                estatisticas.acertos++;
+                divResultado.innerHTML = `<span class="text-green-400 font-bold"><i class="fa-solid fa-check"></i> Correto! Gabarito: ${gabaritoCorreto}</span>`;
             } else {
-                botao.classList.add("incorrect");
-                stats.erros++;
-                for (let b of botoes) {
-                    if (b.innerText.trim() === correta.trim()) {
-                        b.classList.add("correct");
-                    }
-                }
+                divResultado.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-xmark"></i> Incorreto. Gabarito: ${gabaritoCorreto}</span>`;
             }
 
-            explicacaoDiv.style.display = "block";
-            atualizarDashboard();
+            if (explicacao && explicacao !== "undefined" && explicacao !== "") {
+                divResultado.innerHTML += `<div class="text-slate-300 text-xs mt-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-700"><strong>Explicação:</strong> ${explicacao}</div>`;
+            }
+
+            atualizarEstatisticas();
         }
 
-        function copiarPix() {
-            let pixInput = document.getElementById("pixKey");
-            pixInput.select();
-            pixInput.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(pixInput.value);
-            alert("Chave Pix copiada com sucesso! Obrigado pelo apoio.");
+        function atualizarEstatisticas() {
+            document.getElementById('stat-respondidas').textContent = estatisticas.respondidas;
+            const porc = estatisticas.respondidas > 0 ? Math.round((estatisticas.acertos / estatisticas.respondidas) * 100) : 0;
+            document.getElementById('stat-acertos').textContent = porc + '%';
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-        }
-
-        window.onload = function() {
-            carregarQuestoesDaPlanilha();
-        };
+        carregarQuestoes();
     </script>
 </body>
 </html>
+
