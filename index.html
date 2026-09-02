@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACCQuestões - Plataforma de Questões</title>
+    <title>ACCQuestões - Plataforma de Questões de Alto Nível</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -126,7 +126,7 @@
         /* Layout Principal */
         .main-layout {
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 300px 1fr;
             gap: 20px;
         }
 
@@ -136,7 +136,7 @@
             }
         }
 
-        /* Painel de Filtros Avançado Estilo Gran */
+        /* Painel de Filtros Avançado Profissional */
         .filter-container {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -151,10 +151,21 @@
             font-size: 16px;
             margin-bottom: 12px;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .filter-group {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
         }
 
         .filter-group select, 
@@ -175,6 +186,24 @@
             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
         }
 
+        .btn-filtrar {
+            width: 100%;
+            padding: 11px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-filtrar:hover {
+            background-color: var(--primary-dark);
+        }
+
         .btn-limpar {
             width: 100%;
             padding: 10px;
@@ -185,7 +214,7 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 6px;
+            margin-top: 8px;
         }
 
         .btn-limpar:hover {
@@ -262,6 +291,8 @@
             color: var(--text-muted);
             margin-bottom: 10px;
             font-weight: 600;
+            flex-wrap: wrap;
+            gap: 6px;
         }
 
         .question-text {
@@ -353,28 +384,43 @@
     </div>
 
     <div class="main-layout">
-        <!-- Coluna Esquerda: Filtros + Bloco PIX -->
+        <!-- Coluna Esquerda: Filtros Avançados + Botão Filtrar + Bloco PIX -->
         <div>
-            <!-- Painel de Filtros Avançados Estilo Gran -->
             <div class="filter-container">
-                <h3>Filtrar Questões</h3>
+                <h3>🔍 Filtrar Questões</h3>
                 
                 <div class="filter-group">
-                    <input type="text" id="searchKeyword" placeholder="Pesquisar no enunciado..." onkeyup="filtrarQuestoes()">
+                    <label>Palavra-chave</label>
+                    <input type="text" id="searchKeyword" placeholder="Pesquisar no enunciado...">
                 </div>
 
                 <div class="filter-group">
-                    <select id="filtroDisciplina" onchange="filtrarQuestoes()">
-                        <option value="">Disciplina</option>
+                    <label>Disciplina</label>
+                    <select id="filtroDisciplina">
+                        <option value="">Todas as Disciplinas</option>
                         <option value="Direito Constitucional">Direito Constitucional</option>
                         <option value="Direito Administrativo">Direito Administrativo</option>
                         <option value="Direito Penal">Direito Penal</option>
                         <option value="Direito Processual Penal">Direito Processual Penal</option>
+                        <option value="Direito Civil">Direito Civil</option>
+                        <option value="Direito Processual Civil">Direito Processual Civil</option>
+                        <option value="Direito Tributário">Direito Tributário</option>
+                        <option value="Direito Empresarial">Direito Empresarial</option>
+                        <option value="Direito do Trabalho">Direito do Trabalho</option>
+                        <option value="Direito Processual do Trabalho">Direito Processual do Trabalho</option>
+                        <option value="Direito Eleitoral">Direito Eleitoral</option>
+                        <option value="Direito Ambiental">Direito Ambiental</option>
+                        <option value="Direitos Humanos">Direitos Humanos</option>
                         <option value="Legislação Extravagante">Legislação Extravagante</option>
                         <option value="Informática">Informática</option>
                         <option value="Língua Portuguesa">Língua Portuguesa</option>
-                        <option value="Raciocínio Lógico">Raciocínio Lógico</option>
+                        <option value="Raciocínio Lógico">Raciocínio Lógico / Matemática</option>
                         <option value="Contabilidade Geral">Contabilidade Geral</option>
+                        <option value="Contabilidade Pública">Contabilidade Pública</option>
+                        <option value="Administração Financeira e Orçamentária - AFO">AFO</option>
+                        <option value="Administração Pública">Administração Pública</option>
+                        <option value="Administração Geral">Administração Geral</option>
+                        <option value="Economia">Economia</option>
                         <option value="Estatística">Estatística</option>
                         <option value="Geografia do Maranhão">Geografia do Maranhão</option>
                         <option value="História do Maranhão">História do Maranhão</option>
@@ -382,54 +428,82 @@
                 </div>
 
                 <div class="filter-group">
-                    <select id="filtroBanca" onchange="filtrarQuestoes()">
-                        <option value="">Banca</option>
-                        <option value="Cebraspe">Cebraspe</option>
+                    <label>Banca</label>
+                    <select id="filtroBanca">
+                        <option value="">Todas as Bancas</option>
+                        <option value="Cebraspe">Cebraspe (CESPE)</option>
                         <option value="FGV">FGV</option>
-                        <option value="Vunesp">Vunesp</option>
                         <option value="FCC">FCC</option>
+                        <option value="Vunesp">Vunesp</option>
                         <option value="IBFC">IBFC</option>
+                        <option value="IDIB">IDIB</option>
+                        <option value="Instituto AOCP">Instituto AOCP</option>
+                        <option value="AOCP">AOCP</option>
+                        <option value="Cesgranrio">Cesgranrio</option>
+                        <option value="Quadrix">Quadrix</option>
+                        <option value="Consulplan">Consulplan</option>
+                        <option value="FUB">FUB / Outras</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <select id="filtroCargo" onchange="filtrarQuestoes()">
-                        <option value="">Cargo</option>
-                        <option value="Delegado">Delegado</option>
-                        <option value="Investigador">Investigador</option>
-                        <option value="Agente">Agente</option>
-                        <option value="Auditor">Auditor</option>
-                        <option value="Analista">Analista</option>
+                    <label>Cargo / Carreira</label>
+                    <select id="filtroCargo">
+                        <option value="">Todos os Cargos</option>
+                        <option value="Delegado">Delegado de Polícia</option>
+                        <option value="Investigador">Investigador de Polícia</option>
+                        <option value="Escrivão">Escrivão de Polícia</option>
+                        <option value="Agente">Agente de Polícia / Polícia Penal</option>
+                        <option value="Perito">Perito Criminal</option>
+                        <option value="Juiz">Juiz / Magistratura</option>
+                        <option value="Promotor">Promotor / Ministério Público</option>
+                        <option value="Defensor">Defensor Público</option>
+                        <option value="Procurador">Procurador</option>
+                        <option value="Auditor">Auditor Fiscal / Controle</option>
+                        <option value="Analista">Analista Administrativo / Tribunais</option>
+                        <option value="Técnico">Técnico Judiciário / Administrativo</option>
+                        <option value="Fiscal">Fiscal de Arrecadação / Tributário</option>
+                        <option value="Gestor">Gestor Público</option>
+                        <option value="Assistente">Assistente Administrativo</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <select id="filtroEscolaridade" onchange="filtrarQuestoes()">
-                        <option value="">Escolaridade</option>
+                    <label>Escolaridade</label>
+                    <select id="filtroEscolaridade">
+                        <option value="">Todas</option>
                         <option value="Superior">Superior</option>
                         <option value="Médio">Médio</option>
+                        <option value="Fundamental">Fundamental</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <select id="filtroAno" onchange="filtrarQuestoes()">
-                        <option value="">Ano</option>
+                    <label>Ano</label>
+                    <select id="filtroAno">
+                        <option value="">Todos os Anos</option>
                         <option value="2026">2026</option>
                         <option value="2025">2025</option>
                         <option value="2024">2024</option>
                         <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <select id="filtroDificuldade" onchange="filtrarQuestoes()">
-                        <option value="">Dificuldade</option>
+                    <label>Dificuldade</label>
+                    <select id="filtroDificuldade">
+                        <option value="">Todas</option>
                         <option value="Fácil">Fácil</option>
                         <option value="Médio">Médio</option>
                         <option value="Difícil">Difícil</option>
                     </select>
                 </div>
 
+                <!-- Botão Filtrar de Destaque -->
+                <button onclick="filtrarQuestoes()" class="btn-filtrar">Filtrar Questões</button>
                 <button onclick="limparFiltros()" class="btn-limpar">Limpar Filtros</button>
             </div>
 
@@ -455,7 +529,7 @@
         let questoesBanco = [];
         let stats = { respondidas: 0, acertos: 0, erros: 0 };
 
-        // Função que busca as questões direto da sua planilha do Google Sheets com a nova URL
+        // Função que busca as questões com a URL oficial atualizada
         async function carregarQuestoesDaPlanilha() {
             const urlAPI = "https://script.google.com/macros/s/AKfycbwMfWg4uDNRTP7Q1qnrITb4Pm4egYojUvPPPLrXbLA/exec";
             
@@ -466,7 +540,7 @@
                 filtrarQuestoes();
             } catch (erro) {
                 console.error("Erro ao carregar questões:", erro);
-                document.getElementById("contadorResultados").innerText = "Erro ao carregar dados da planilha.";
+                document.getElementById("contadorResultados").innerText = "Erro ao carregar dados da planilha. Verifique a conexão.";
             }
         }
 
@@ -491,7 +565,7 @@
                 let matchKey = q.enunciado && q.enunciado.toLowerCase().includes(keyword);
                 let matchDisc = disc === "" || q.disciplina === disc;
                 let matchBanca = banca === "" || q.banca === banca;
-                let matchCargo = cargo === "" || (q.cargo && q.cargo.includes(cargo));
+                let matchCargo = cargo === "" || (q.cargo && q.cargo.toLowerCase().includes(cargo.toLowerCase()));
                 let matchEsc = esc === "" || q.escolaridade === esc;
                 let matchAno = ano === "" || String(q.ano) === String(ano);
                 let matchDif = dif === "" || q.dificuldade === dif;
@@ -587,7 +661,6 @@
             document.body.classList.toggle("dark-mode");
         }
 
-        // Assim que a página abre, puxa os dados direto do Google Sheets
         window.onload = function() {
             carregarQuestoesDaPlanilha();
         };
