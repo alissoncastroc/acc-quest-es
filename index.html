@@ -134,7 +134,7 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbydh1lH5iW0P44-D0BgyzOQAP6kWuIuU0lpFXUt4pxSjYJHZ88hO-xKvC8x8gHgffAN/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxemphPOvh6VrcbIlXEgGOaYY8C9tkx1ZwzBH58kKfUIAMlEdnh9em1cSi_oxxmewIJ/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -232,14 +232,11 @@
 
             container.innerHTML = questoes.map((q, index) => {
                 let htmlOpcoes = '';
-                
-                // Limpa e filtra opções vazias reais
                 const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
                 
-                // Verifica se é Certo/Errado (quando as duas primeiras opções são Certo e Errado)
                 const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toUpperCase() : '';
                 const op2 = opcoesValidas[1] ? opcoesValidas[1].toString().trim().toUpperCase() : '';
-                const ehCertoErrado = (opcoesValidas.length === 2 && ((op1 === 'CERTO' && op2 === 'ERRADO') || (op1 === 'CERTO' && op2 === 'CERTO')));
+                const ehCertoErrado = (opcoesValidas.length === 2 && op1 === 'CERTO' && op2 === 'ERRADO');
 
                 if (ehCertoErrado) {
                     htmlOpcoes = `
