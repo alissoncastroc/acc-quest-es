@@ -134,7 +134,7 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        const API_URL = "hhttps://script.google.com/macros/s/AKfycbwi2qqfCE74xO7GY6zIqq7vMa31kQ937H_uVQxZBRlH592mjEORhKeIb1zXBBur-ZPM/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwi2qqfCE74xO7GY6zIqq7vMa31kQ937H_uVQxZBRlH592mjEORhKeIb1zXBBur-ZPM/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -232,7 +232,9 @@
 
             container.innerHTML = questoes.map((q, index) => {
                 let htmlOpcoes = '';
-                const ehCertoErrado = q.opcoes.length === 2 && q.opcoes[0].toString().trim().toLowerCase() === 'certo' && q.opcoes[1].toString().trim().toLowerCase() === 'errado';
+                const ehCertoErrado = q.opcoes.length === 2 && 
+                                      q.opcoes[0].toString().trim().toLowerCase() === 'certo' && 
+                                      q.opcoes[1].toString().trim().toLowerCase() === 'errado';
 
                 if (ehCertoErrado) {
                     htmlOpcoes = `
@@ -300,7 +302,6 @@
             let gabaritoOficial = gabaritoCorreto.trim().toUpperCase();
             let textoGabaritoExibicao = gabaritoCorreto.trim();
 
-            // Se for questão Certo/Errado, traduz A/B para Certo/Errado se necessário
             if (ehCertoErrado) {
                 if (gabaritoOficial === 'A') {
                     gabaritoOficial = 'CERTO';
