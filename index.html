@@ -9,8 +9,25 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
+    <!-- Modal de Identificação do Usuário (Para salvar estatísticas) -->
+    <div id="modal-usuario" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-center">
+            <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white w-12 h-12 mx-auto rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fa-solid fa-user-graduate text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-white">Bem-vindo ao ACCQuestões</h2>
+                <p class="text-xs text-slate-400 mt-1">Informe seu nome para salvar seu histórico e estatísticas de estudos individualmente.</p>
+            </div>
+            <input type="text" id="input-usuario" placeholder="Digite seu nome ou apelido..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500 transition text-center">
+            <button onclick="salvarUsuario()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition text-xs shadow-lg shadow-blue-600/20">
+                Começar a Estudar
+            </button>
+        </div>
+    </div>
+
     <!-- Topo / Header -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-lg">
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-45 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center justify-between w-full sm:w-auto">
                 <div class="flex items-center gap-3">
@@ -19,7 +36,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold tracking-tight text-white">ACC<span class="text-blue-500">Questões</span></h1>
-                        <p class="text-xs text-slate-400">Plataforma Inteligente</p>
+                        <p class="text-xs text-slate-400">Estudante: <span id="span-usuario" class="text-blue-400 font-semibold">--</span> <button onclick="alterarUsuario()" class="text-[10px] text-slate-500 hover:text-slate-300 underline ml-1">(Trocar)</button></p>
                     </div>
                 </div>
                 <!-- Botão de Filtro Mobile -->
@@ -54,6 +71,15 @@
             </div>
             
             <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">Método / Tipo</label>
+                    <select id="filtro-metodo" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
+                        <option value="">Todos os Métodos</option>
+                        <option value="Certo/Errado">Certo / Errado</option>
+                        <option value="Múltipla Escolha">Múltipla Escolha</option>
+                    </select>
+                </div>
+
                 <div>
                     <label class="block text-slate-400 mb-1 font-medium">Disciplina</label>
                     <select id="filtro-disciplina" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
@@ -138,7 +164,56 @@
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
-        let estatisticas = { respondidas: 0, acertos: 0 };
+        let usuarioAtual = "";
+        let estatisticas = { respondidas: 0, acertos: 0, respondidasIds: {} };
+
+        // Verifica usuário ao carregar
+        window.addEventListener('DOMContentLoaded', () => {
+            const salvo = localStorage.getItem('acc_usuario');
+            if (salvo) {
+                usuarioAtual = salvo;
+                document.getElementById('span-usuario').textContent = usuarioAtual;
+                document.getElementById('modal-usuario').classList.add('hidden');
+                carregarEstatisticasUsuario();
+            } else {
+                document.getElementById('modal-usuario').classList.remove('hidden');
+            }
+            carregarQuestoes();
+        });
+
+        function salvarUsuario() {
+            const nome = document.getElementById('input-usuario').value.trim();
+            if (!nome) {
+                alert("Por favor, digite seu nome ou apelido.");
+                return;
+            }
+            usuarioAtual = nome;
+            localStorage.setItem('acc_usuario', usuarioAtual);
+            document.getElementById('span-usuario').textContent = usuarioAtual;
+            document.getElementById('modal-usuario').classList.add('hidden');
+            carregarEstatisticasUsuario();
+            atualizarEstatisticas();
+        }
+
+        function alterarUsuario() {
+            document.getElementById('input-usuario').value = usuarioAtual;
+            document.getElementById('modal-usuario').classList.remove('hidden');
+        }
+
+        function carregarEstatisticasUsuario() {
+            const salvoStats = localStorage.getItem(`acc_stats_${usuarioAtual}`);
+            if (salvoStats) {
+                estatisticas = JSON.parse(salvoStats);
+            } else {
+                estatisticas = { respondidas: 0, acertos: 0, respondidasIds: {} };
+            }
+        }
+
+        function salvarEstatisticasUsuario() {
+            if (usuarioAtual) {
+                localStorage.setItem(`acc_stats_${usuarioAtual}`, JSON.stringify(estatisticas));
+            }
+        }
 
         async function carregarQuestoes() {
             try {
@@ -147,12 +222,24 @@
                 
                 if (dados.error) throw new Error(dados.error);
 
-                todasQuestoes = dados;
-                questoesFiltradas = dados;
+                // Classifica cada questão com seu método
+                todasQuestoes = dados.map(q => {
+                    const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
+                    const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toLowerCase() : '';
+                    const op2 = opcoesValidas[1] ? opcoesValidas[1].toString().trim().toLowerCase() : '';
+                    const ehCE = (opcoesValidas.length === 2 && op1 === 'certo' && op2 === 'errado');
+                    
+                    return {
+                        ...q,
+                        metodo: ehCE ? 'Certo/Errado' : 'Múltipla Escolha'
+                    };
+                });
+
+                questoesFiltradas = todasQuestoes;
                 
                 atualizarEstatisticas();
-                popularFiltros(dados);
-                exibirQuestoes(dados);
+                popularFiltros(todasQuestoes);
+                exibirQuestoes(todasQuestoes);
             } catch (erro) {
                 document.getElementById('container-questoes').innerHTML = `
                     <div class="bg-red-950/40 border border-red-900/60 p-6 rounded-2xl text-center text-red-300 shadow-xl">
@@ -189,13 +276,15 @@
         }
 
         function aplicarFiltros() {
+            const metodo = document.getElementById('filtro-metodo').value;
             const disc = document.getElementById('filtro-disciplina').value;
             const banca = document.getElementById('filtro-banca').value;
             const cargo = document.getElementById('filtro-cargo').value;
             const dif = document.getElementById('filtro-dificuldade').value;
 
             questoesFiltradas = todasQuestoes.filter(q => {
-                return (!disc || q.disciplina === disc) &&
+                return (!metodo || q.metodo === metodo) &&
+                       (!disc || q.disciplina === disc) &&
                        (!banca || q.banca === banca) &&
                        (!cargo || q.cargo === cargo) &&
                        (!dif || q.dificuldade === dif);
@@ -209,6 +298,7 @@
         }
 
         function limparFiltros() {
+            document.getElementById('filtro-metodo').value = "";
             document.getElementById('filtro-disciplina').value = "";
             document.getElementById('filtro-banca').value = "";
             document.getElementById('filtro-cargo').value = "";
@@ -232,18 +322,17 @@
 
             container.innerHTML = questoes.map((q, index) => {
                 let htmlOpcoes = '';
-                const ehCertoErrado = q.opcoes.length === 2 && 
-                                      q.opcoes[0].toString().trim().toLowerCase() === 'certo' && 
-                                      q.opcoes[1].toString().trim().toLowerCase() === 'errado';
+                const qId = q.id || index;
+                const ehCertoErrado = q.metodo === 'Certo/Errado';
 
                 if (ehCertoErrado) {
                     htmlOpcoes = `
                         <div class="grid grid-cols-2 gap-3">
                             <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
-                                <input type="radio" name="pergunta-${q.id || index}" value="CERTO" class="accent-blue-600"> Certo
+                                <input type="radio" name="pergunta-${qId}" value="CERTO" class="accent-blue-600"> Certo
                             </label>
                             <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
-                                <input type="radio" name="pergunta-${q.id || index}" value="ERRADO" class="accent-blue-600"> Errado
+                                <input type="radio" name="pergunta-${qId}" value="ERRADO" class="accent-blue-600"> Errado
                             </label>
                         </div>`;
                 } else {
@@ -251,33 +340,38 @@
                         const letra = String.fromCharCode(65 + i); // A, B, C, D, E
                         return `
                             <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm">
-                                <input type="radio" name="pergunta-${q.id || index}" value="${letra}" class="mt-0.5 accent-blue-600">
+                                <input type="radio" name="pergunta-${qId}" value="${letra}" class="mt-0.5 accent-blue-600">
                                 <span class="text-slate-300"><strong class="text-blue-400 mr-1">${letra})</strong> ${opt}</span>
                             </label>`;
                     }).join('');
                 }
 
+                // Verifica se já foi respondida nesta sessão salva
+                const jaRespondida = estatisticas.respondidasIds && estatisticas.respondidasIds[qId];
+
                 return `
-                    <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4" id="questao-${q.id || index}">
+                    <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4" id="questao-${qId}">
                         <div class="flex flex-wrap gap-2 text-xs">
                             <span class="bg-blue-950 text-blue-300 border border-blue-900/50 px-2.5 py-1 rounded-lg font-medium">${q.disciplina || 'Geral'}</span>
                             <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.banca || 'Banca não informada'}</span>
                             <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.cargo || 'Cargo geral'}</span>
-                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.nivel || ''}</span>
-                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.orgao || ''}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.metodo}</span>
                         </div>
                         
                         <p class="text-slate-200 text-sm md:text-base leading-relaxed whitespace-pre-line">${q.enunciado}</p>
                         
-                        <div class="space-y-2 pt-2" id="opcoes-${q.id || index}">
+                        <div class="space-y-2 pt-2" id="opcoes-${qId}">
                             ${htmlOpcoes}
                         </div>
 
                         <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
-                            <button onclick="responder(this, '${q.gabarito}', \`${q.explicacao || ''}\`, '${q.id || index}', ${ehCertoErrado})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
-                                Responder
+                            <button onclick="responder(this, '${q.gabarito}', \`${q.explicacao || ''}\`, '${qId}', ${ehCertoErrado})" 
+                                class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20 ${jaRespondida ? 'opacity-50 cursor-not-allowed' : ''}" ${jaRespondida ? 'disabled' : ''}>
+                                ${jaRespondida ? 'Respondida' : 'Responder'}
                             </button>
-                            <div id="resultado-${q.id || index}" class="text-xs"></div>
+                            <div id="resultado-${qId}" class="text-xs">
+                                ${jaRespondida ? `<span class="${jaRespondida.acertou ? 'text-emerald-400' : 'text-red-400'} font-bold">Salva: ${jaRespondida.acertou ? 'Correto!' : 'Incorreto.'} Gabarito: ${jaRespondida.gabaritoExibido}</span>` : ''}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -295,9 +389,8 @@
 
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
+            btn.textContent = "Respondida";
 
-            estatisticas.respondidas++;
-            
             const respostaUsuario = selecionada.value.trim().toUpperCase();
             let gabaritoOficial = gabaritoCorreto.trim().toUpperCase();
             let textoGabaritoExibicao = gabaritoCorreto.trim();
@@ -312,8 +405,19 @@
                 }
             }
 
-            if (respostaUsuario === gabaritoOficial) {
-                estatisticas.acertos++;
+            const acertou = (respostaUsuario === gabaritoOficial);
+
+            // Evita contar estatísticas duas vezes para a mesma questão
+            if (!estatisticas.respondidasIds[id]) {
+                estatisticas.respondidas++;
+                if (acertou) {
+                    estatisticas.acertos++;
+                }
+                estatisticas.respondidasIds[id] = { acertou: acertou, gabaritoExibido: textoGabaritoExibicao };
+                salvarEstatisticasUsuario();
+            }
+
+            if (acertou) {
                 divResultado.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Correto! Gabarito: ${textoGabaritoExibicao}</span>`;
             } else {
                 divResultado.innerHTML = `<span class="text-red-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> Incorreto. Gabarito: ${textoGabaritoExibicao}</span>`;
@@ -344,12 +448,12 @@
         }
 
         function atualizarEstatisticas() {
-            document.getElementById('stat-respondidas').textContent = estatisticas.respondidas;
-            const porc = estatisticas.respondidas > 0 ? Math.round((estatisticas.acertos / estatisticas.respondidas) * 100) : 0;
+            document.getElementById('stat-respondidas').textContent = estatisticas.respondidas || 0;
+            const porc = (estatisticas.respondidas && estatisticas.respondidas > 0) 
+                ? Math.round(((estatisticas.acertos || 0) / estatisticas.respondidas) * 100) 
+                : 0;
             document.getElementById('stat-acertos').textContent = porc + '%';
         }
-
-        carregarQuestoes();
     </script>
 </body>
 </html>
