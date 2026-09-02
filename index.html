@@ -226,7 +226,6 @@
                     const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
                     const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toLowerCase() : '';
                     
-                    // Identifica se é Certo/Errado com total segurança
                     const ehCE = (opcoesValidas.length === 2 && op1 === 'certo') || 
                                  (q.banca && q.banca.toUpperCase() === 'CEBRASPE' && opcoesValidas.length <= 2);
                     
@@ -422,7 +421,9 @@
                 divResultado.innerHTML = `<span class="text-red-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> Incorreto. Gabarito: ${textoGabaritoExibicao}</span>`;
             }
 
-            if (explicacao && explicacao !== "undefined" && explicacao.trim() !== "") {
+            // Validação estrita: só exibe o comentário se ele realmente existir e não estiver em branco/undefined
+            const explicacaoLimpa = explicacao ? explicacao.trim() : "";
+            if (explicacaoLimpa !== "" && explicacaoLimpa.toLowerCase() !== "undefined" && explicacaoLimpa.toLowerCase() !== "null") {
                 divResultado.innerHTML += `<div class="text-slate-300 text-xs mt-3 bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed"><strong>Comentário:</strong> ${explicacao}</div>`;
             }
 
