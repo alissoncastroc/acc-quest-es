@@ -455,9 +455,9 @@
         let questoesBanco = [];
         let stats = { respondidas: 0, acertos: 0, erros: 0 };
 
-        // Função que busca as questões direto da sua planilha do Google Sheets automaticamente
+        // Função que busca as questões direto da sua planilha do Google Sheets com a nova URL
         async function carregarQuestoesDaPlanilha() {
-            const urlAPI = "https://script.google.com/macros/s/AKfycbz2yx9XVil6-PFQsWUNYxYq813lhEvyElCU46rkRFoPnR0Nwo0JiLMkhPZXHQ2XRAPB";
+            const urlAPI = "https://script.google.com/macros/s/AKfycbwMfWg4uDNRTP7Q1qnrITb4Pm4egYojUvPPPLrXbLA/exec";
             
             try {
                 let resposta = await fetch(urlAPI);
