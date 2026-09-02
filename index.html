@@ -134,7 +134,7 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwLhKLmT_uQqLUQUWPzBTHqWMXyy1WzEWE1SeDDwMcjYYtlnpwcZz5nqWbZZKlp7kiT/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxb8T4LfAIsxcKd0ctcFvBpvoS-ev8V7JL97rzeY64VnMeerYgOv03F5G-_vQg0NmjA/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -231,9 +231,8 @@
             }
 
             container.innerHTML = questoes.map((q, index) => {
-                // Renderiza dinamicamente as alternativas exatamente como vieram da planilha (A, B, C, D, E...)
                 const htmlOpcoes = q.opcoes.map((opt, i) => {
-                    const letra = String.fromCharCode(65 + i); // Gera A, B, C, D, E
+                    const letra = String.fromCharCode(65 + i); // A, B, C, D, E...
                     return `
                         <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm">
                             <input type="radio" name="pergunta-${q.id || index}" value="${letra}" class="mt-0.5 accent-blue-600">
