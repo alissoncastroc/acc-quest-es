@@ -231,14 +231,36 @@
             }
 
             container.innerHTML = questoes.map((q, index) => {
-                const htmlOpcoes = q.opcoes.map((opt, i) => {
-                    const letra = String.fromCharCode(65 + i); // A, B, C, D, E...
-                    return `
-                        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm">
-                            <input type="radio" name="pergunta-${q.id || index}" value="${letra}" class="mt-0.5 accent-blue-600">
-                            <span class="text-slate-300"><strong class="text-blue-400 mr-1">${letra})</strong> ${opt}</span>
-                        </label>`;
-                }).join('');
+                let htmlOpcoes = '';
+                
+                // Limpa e filtra opções vazias reais
+                const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
+                
+                // Verifica se é Certo/Errado (quando as duas primeiras opções são Certo e Errado)
+                const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toUpperCase() : '';
+                const op2 = opcoesValidas[1] ? opcoesValidas[1].toString().trim().toUpperCase() : '';
+                const ehCertoErrado = (opcoesValidas.length === 2 && ((op1 === 'CERTO' && op2 === 'ERRADO') || (op1 === 'CERTO' && op2 === 'CERTO')));
+
+                if (ehCertoErrado) {
+                    htmlOpcoes = `
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
+                                <input type="radio" name="pergunta-${q.id || index}" value="Certo" class="accent-blue-600"> Certo
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
+                                <input type="radio" name="pergunta-${q.id || index}" value="Errado" class="accent-blue-600"> Errado
+                            </label>
+                        </div>`;
+                } else {
+                    htmlOpcoes = opcoesValidas.map((opt, i) => {
+                        const letra = String.fromCharCode(65 + i); // A, B, C, D, E
+                        return `
+                            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm">
+                                <input type="radio" name="pergunta-${q.id || index}" value="${letra}" class="mt-0.5 accent-blue-600">
+                                <span class="text-slate-300"><strong class="text-blue-400 mr-1">${letra})</strong> ${opt}</span>
+                            </label>`;
+                    }).join('');
+                }
 
                 return `
                     <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4" id="questao-${q.id || index}">
