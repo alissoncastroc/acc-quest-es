@@ -12,21 +12,27 @@
     <!-- Topo / Header -->
     <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white p-2.5 rounded-xl shadow-md">
-                    <i class="fa-solid fa-brain text-lg"></i>
+            <div class="flex items-center justify-between w-full sm:w-auto">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white p-2.5 rounded-xl shadow-md">
+                        <i class="fa-solid fa-brain text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight text-white">ACC<span class="text-blue-500">Questões</span></h1>
+                        <p class="text-xs text-slate-400">Plataforma Inteligente</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white">ACC<span class="text-blue-500">Questões</span></h1>
-                    <p class="text-xs text-slate-400">Plataforma Inteligente de Estudos</p>
-                </div>
+                <!-- Botão de Filtro Mobile -->
+                <button onclick="toggleFiltrosMobile()" class="lg:hidden bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition shadow-md">
+                    <i class="fa-solid fa-filter"></i> Filtros
+                </button>
             </div>
 
             <!-- Dashboard de Estatísticas no Topo -->
-            <div class="flex items-center gap-3 bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-800 text-xs shadow-inner">
+            <div class="flex items-center justify-center gap-3 bg-slate-900/80 px-4 py-1.5 rounded-xl border border-slate-800 text-xs shadow-inner w-full sm:w-auto">
                 <div class="flex items-center gap-1.5"><span class="text-slate-400">Total:</span> <span id="stat-total" class="font-bold text-blue-400">0</span></div>
                 <div class="h-3 w-px bg-slate-800"></div>
-                <div class="flex items-center gap-1.5"><span class="text-slate-400">Respondidas:</span> <span id="stat-respondidas" class="font-bold text-indigo-400">0</span></div>
+                <div class="flex items-center gap-1.5"><span class="text-slate-400">Resp:</span> <span id="stat-respondidas" class="font-bold text-indigo-400">0</span></div>
                 <div class="h-3 w-px bg-slate-800"></div>
                 <div class="flex items-center gap-1.5"><span class="text-slate-400">Acertos:</span> <span id="stat-acertos" class="font-bold text-emerald-400">0%</span></div>
             </div>
@@ -36,11 +42,16 @@
     <!-- Corpo Principal -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         
-        <!-- Barra Lateral de Filtros Avançados -->
-        <aside class="lg:col-span-1 bg-slate-900/90 p-5 rounded-2xl border border-slate-800/80 shadow-xl space-y-4 sticky top-20">
-            <h2 class="font-semibold text-sm uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2.5 flex items-center gap-2">
-                <i class="fa-solid fa-sliders text-blue-500"></i> Filtrar Questões
-            </h2>
+        <!-- Barra Lateral de Filtros (Responsiva / Retrátil no Mobile) -->
+        <aside id="painel-filtros" class="hidden lg:block lg:col-span-1 bg-slate-900/95 p-5 rounded-2xl border border-slate-800/80 shadow-xl space-y-4 lg:sticky lg:top-20">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <h2 class="font-semibold text-sm uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-blue-500"></i> Filtrar Questões
+                </h2>
+                <button onclick="toggleFiltrosMobile()" class="lg:hidden text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
             
             <div class="space-y-3 text-xs">
                 <div>
@@ -100,8 +111,8 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        // COLE A SUA NOVA URL DO GOOGLE APPS SCRIPT ABAIXO ENTRE AS ASPAS:
-        const API_URL = "https://script.google.com/macros/s/AKfycbwzh4Bb9R0QbSb0Q3FQ8BfpyV4nVLW3xfIvQVHhvnCiMharugL4qfC47TUqRdpilTgZ/exec";
+        // URL DO GOOGLE APPS SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbwzh4Bb9R0QbSb0Q3FQ8BfpyV4nVLW3xflvQVHhvnCMharugL4qfC47TUqRdpilTgZ/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -125,8 +136,18 @@
                     <div class="bg-red-950/40 border border-red-900/60 p-6 rounded-2xl text-center text-red-300 shadow-xl">
                         <i class="fa-solid fa-triangle-exclamation text-2xl mb-2 text-red-500"></i>
                         <p class="font-bold text-sm">Erro ao carregar as questões da planilha.</p>
-                        <p class="text-xs mt-1 text-red-400">Verifique se a URL do Apps Script está correta e se a implantação está liberada para "Qualquer pessoa".</p>
+                        <p class="text-xs mt-1 text-red-400">Verifique a conexão ou a URL do Apps Script.</p>
                     </div>`;
+            }
+        }
+
+        function toggleFiltrosMobile() {
+            const painel = document.getElementById('painel-filtros');
+            if (painel.classList.contains('hidden')) {
+                painel.classList.remove('hidden');
+                painel.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                painel.classList.add('hidden');
             }
         }
 
@@ -159,6 +180,11 @@
             });
 
             exibirQuestoes(questoesFiltradas);
+
+            // No celular, fecha o painel automaticamente após filtrar para liberar a tela
+            if (window.innerWidth < 1024) {
+                document.getElementById('painel-filtros').classList.add('hidden');
+            }
         }
 
         function limparFiltros() {
@@ -168,6 +194,10 @@
             document.getElementById('filtro-dificuldade').value = "";
             questoesFiltradas = todasQuestoes;
             exibirQuestoes(questoesFiltradas);
+
+            if (window.innerWidth < 1024) {
+                document.getElementById('painel-filtros').classList.add('hidden');
+            }
         }
 
         function exibirQuestoes(questoes) {
