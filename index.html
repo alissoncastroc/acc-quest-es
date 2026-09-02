@@ -231,11 +231,10 @@
             }
 
             container.innerHTML = questoes.map((q, index) => {
-                // Identifica se é Certo/Errado ou Múltipla Escolha
-                const ehCertoErrado = q.opcoes.length === 0 || (q.opcoes.length === 1 && (q.opcoes[0].toUpperCase() === 'CERTO' || q.opcoes[0].toUpperCase() === 'CERTO/ERRADO'));
-
                 let htmlOpcoes = '';
-                if (ehCertoErrado) {
+                
+                // Se a alternativa B for "Errado" (caso do CEBRASPE Certo/Errado)
+                if (q.opcoes[1] && q.opcoes[1].toUpperCase() === "ERRADO") {
                     htmlOpcoes = `
                         <div class="grid grid-cols-2 gap-3">
                             <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
@@ -246,6 +245,7 @@
                             </label>
                         </div>`;
                 } else {
+                    // Múltipla escolha padrão mapeada das colunas H a L
                     htmlOpcoes = q.opcoes.map((opt, i) => {
                         const letra = String.fromCharCode(65 + i);
                         return `
@@ -262,8 +262,8 @@
                             <span class="bg-blue-950 text-blue-300 border border-blue-900/50 px-2.5 py-1 rounded-lg font-medium">${q.disciplina || 'Geral'}</span>
                             <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.banca || 'Banca não informada'}</span>
                             <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.cargo || 'Cargo geral'}</span>
-                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.ano || ''}</span>
-                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.dificuldade || 'Média'}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.nivel || ''}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.orgao || ''}</span>
                         </div>
                         
                         <p class="text-slate-200 text-sm md:text-base leading-relaxed whitespace-pre-line">${q.enunciado}</p>
