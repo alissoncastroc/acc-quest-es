@@ -134,7 +134,7 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxemphPOvh6VrcbIlXEgGOaYY8C9tkx1ZwzBH58kKfUIAMlEdnh9em1cSi_oxxmewIJ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwi2qqfCE74xO7GY6zIqq7vMa31kQ937H_uVQxZBRlH592mjEORhKeIb1zXBBur-ZPM/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -232,16 +232,16 @@
 
             container.innerHTML = questoes.map((q, index) => {
                 let htmlOpcoes = '';
-                const ehCertoErrado = q.opcoes.length === 2 && q.opcoes[0] === 'Certo' && q.opcoes[1] === 'Errado';
+                const ehCertoErrado = q.opcoes.length === 2 && q.opcoes[0].toString().trim().toLowerCase() === 'certo' && q.opcoes[1].toString().trim().toLowerCase() === 'errado';
 
                 if (ehCertoErrado) {
                     htmlOpcoes = `
                         <div class="grid grid-cols-2 gap-3">
                             <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
-                                <input type="radio" name="pergunta-${q.id || index}" value="A" class="accent-blue-600"> Certo
+                                <input type="radio" name="pergunta-${q.id || index}" value="Certo" class="accent-blue-600"> Certo
                             </label>
                             <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
-                                <input type="radio" name="pergunta-${q.id || index}" value="B" class="accent-blue-600"> Errado
+                                <input type="radio" name="pergunta-${q.id || index}" value="Errado" class="accent-blue-600"> Errado
                             </label>
                         </div>`;
                 } else {
