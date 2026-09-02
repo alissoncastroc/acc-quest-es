@@ -72,15 +72,6 @@
             
             <div class="space-y-3 text-xs">
                 <div>
-                    <label class="block text-slate-400 mb-1 font-medium">Método / Tipo</label>
-                    <select id="filtro-metodo" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
-                        <option value="">Todos os Métodos</option>
-                        <option value="Certo/Errado">Certo / Errado</option>
-                        <option value="Múltipla Escolha">Múltipla Escolha</option>
-                    </select>
-                </div>
-
-                <div>
                     <label class="block text-slate-400 mb-1 font-medium">Disciplina</label>
                     <select id="filtro-disciplina" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 transition">
                         <option value="">Todas as Disciplinas</option>
@@ -160,7 +151,7 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwi2qqfCE74xO7GY6zIqq7vMa31kQ937H_uVQxZBRlH592mjEORhKeIb1zXBBur-ZPM/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwzh4Bb9R0QbSb0Q3FQ8BfpyV4nVLW3xflvQVHhvnCMharugL4qfC47TUqRdpilTgZ/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -226,8 +217,9 @@
                     const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
                     const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toLowerCase() : '';
                     
-                    const ehCE = (opcoesValidas.length === 2 && op1 === 'certo') || 
-                                 (q.banca && q.banca.toUpperCase() === 'CEBRASPE' && opcoesValidas.length <= 2);
+                    const ehCE = q.metodoFixo === 'Certo/Errado' || 
+                                 (opcoesValidas.length === 2 && op1 === 'certo') || 
+                                 (q.banca && q.banca.toUpperCase().includes('CEBRASPE') && opcoesValidas.length <= 2);
                     
                     return {
                         ...q,
@@ -276,15 +268,13 @@
         }
 
         function aplicarFiltros() {
-            const metodo = document.getElementById('filtro-metodo').value;
             const disc = document.getElementById('filtro-disciplina').value;
             const banca = document.getElementById('filtro-banca').value;
             const cargo = document.getElementById('filtro-cargo').value;
             const dif = document.getElementById('filtro-dificuldade').value;
 
             questoesFiltradas = todasQuestoes.filter(q => {
-                return (!metodo || q.metodo === metodo) &&
-                       (!disc || q.disciplina === disc) &&
+                return (!disc || q.disciplina === disc) &&
                        (!banca || q.banca === banca) &&
                        (!cargo || q.cargo === cargo) &&
                        (!dif || q.dificuldade === dif);
@@ -298,7 +288,6 @@
         }
 
         function limparFiltros() {
-            document.getElementById('filtro-metodo').value = "";
             document.getElementById('filtro-disciplina').value = "";
             document.getElementById('filtro-banca').value = "";
             document.getElementById('filtro-cargo').value = "";
@@ -353,7 +342,6 @@
                             <span class="bg-blue-950 text-blue-300 border border-blue-900/50 px-2.5 py-1 rounded-lg font-medium">${q.disciplina || 'Geral'}</span>
                             <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.banca || 'Banca não informada'}</span>
                             <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.cargo || 'Cargo geral'}</span>
-                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.metodo}</span>
                         </div>
                         
                         <p class="text-slate-200 text-sm md:text-base leading-relaxed whitespace-pre-line">${q.enunciado}</p>
@@ -387,19 +375,21 @@
             btn.classList.add('opacity-50', 'cursor-not-allowed');
 
             const respostaUsuario = selecionada.value.trim().toUpperCase();
+            const gabaritoLimpo = gabaritoBruto.trim().toUpperCase();
             
             let gabaritoOficial = "";
             let textoGabaritoExibicao = "";
-
-            const gabaritoLimpo = gabaritoBruto.trim().toUpperCase();
 
             if (ehCertoErrado) {
                 if (gabaritoLimpo.includes('CERTO') || gabaritoLimpo === 'A') {
                     gabaritoOficial = 'CERTO';
                     textoGabaritoExibicao = 'Certo';
-                } else {
+                } else if (gabaritoLimpo.includes('ERRADO') || gabaritoLimpo === 'B') {
                     gabaritoOficial = 'ERRADO';
                     textoGabaritoExibicao = 'Errado';
+                } else {
+                    gabaritoOficial = gabaritoLimpo;
+                    textoGabaritoExibicao = gabaritoBruto.trim();
                 }
             } else {
                 const matchLetra = gabaritoLimpo.match(/[A-E]/);
@@ -421,7 +411,6 @@
                 divResultado.innerHTML = `<span class="text-red-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-xmark"></i> Incorreto. Gabarito: ${textoGabaritoExibicao}</span>`;
             }
 
-            // Validação estrita: só exibe o comentário se ele realmente existir e não estiver em branco/undefined
             const explicacaoLimpa = explicacao ? explicacao.trim() : "";
             if (explicacaoLimpa !== "" && explicacaoLimpa.toLowerCase() !== "undefined" && explicacaoLimpa.toLowerCase() !== "null") {
                 divResultado.innerHTML += `<div class="text-slate-300 text-xs mt-3 bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed"><strong>Comentário:</strong> ${explicacao}</div>`;
