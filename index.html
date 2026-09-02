@@ -226,7 +226,10 @@
                     const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
                     const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toLowerCase() : '';
                     const op2 = opcoesValidas[1] ? opcoesValidas[1].toString().trim().toLowerCase() : '';
-                    const ehCE = (opcoesValidas.length === 2 && op1 === 'certo' && op2 === 'errado');
+                    
+                    // Identifica se é Certo/Errado de forma ampla (se tiver 2 opções onde a 1ª é certo e a 2ª é errado, ou se a banca for Cebraspe e tiver 2 opções)
+                    const ehCE = (opcoesValidas.length === 2 && ((op1.includes('certo') || op1 === 'a') && (op2.includes('errado') || op2 === 'b'))) || 
+                                 (q.banca && q.banca.toUpperCase() === 'CEBRASPE' && opcoesValidas.length <= 2);
                     
                     return {
                         ...q,
@@ -335,7 +338,8 @@
                             </label>
                         </div>`;
                 } else {
-                    htmlOpcoes = q.opcoes.map((opt, i) => {
+                    const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
+                    htmlOpcoes = opcoesValidas.map((opt, i) => {
                         const letra = String.fromCharCode(65 + i); // A, B, C, D, E
                         return `
                             <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm">
@@ -386,7 +390,6 @@
 
             const respostaUsuario = selecionada.value.trim().toUpperCase();
             
-            // Tratamento blindado do gabarito oficial e do texto limpo para exibição
             let gabaritoOficial = "";
             let textoGabaritoExibicao = "";
 
@@ -401,7 +404,6 @@
                     textoGabaritoExibicao = 'Errado';
                 }
             } else {
-                // Pega a primeira letra válida (A, B, C, D ou E) se houver texto misturado
                 const matchLetra = gabaritoLimpo.match(/[A-E]/);
                 gabaritoOficial = matchLetra ? matchLetra[0] : gabaritoLimpo.charAt(0);
                 textoGabaritoExibicao = gabaritoOficial;
@@ -409,7 +411,6 @@
 
             const acertou = (respostaUsuario === gabaritoOficial);
 
-            // Atualiza estatísticas globais
             estatisticas.respondidas++;
             if (acertou) {
                 estatisticas.acertos++;
