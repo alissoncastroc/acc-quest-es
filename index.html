@@ -214,16 +214,9 @@
                 if (dados.error) throw new Error(dados.error);
 
                 todasQuestoes = dados.map(q => {
-                    const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
-                    const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toLowerCase() : '';
-                    
-                    const ehCE = q.metodoFixo === 'Certo/Errado' || 
-                                 (opcoesValidas.length === 2 && op1 === 'certo') || 
-                                 (q.banca && q.banca.toUpperCase().includes('CEBRASPE') && opcoesValidas.length <= 2);
-                    
                     return {
                         ...q,
-                        metodo: ehCE ? 'Certo/Errado' : 'Múltipla Escolha'
+                        metodo: q.metodoFixo || 'Múltipla Escolha'
                     };
                 });
 
