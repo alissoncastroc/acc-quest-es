@@ -225,10 +225,9 @@
                 todasQuestoes = dados.map(q => {
                     const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
                     const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toLowerCase() : '';
-                    const op2 = opcoesValidas[1] ? opcoesValidas[1].toString().trim().toLowerCase() : '';
                     
-                    // Identifica se é Certo/Errado de forma ampla (se tiver 2 opções onde a 1ª é certo e a 2ª é errado, ou se a banca for Cebraspe e tiver 2 opções)
-                    const ehCE = (opcoesValidas.length === 2 && ((op1.includes('certo') || op1 === 'a') && (op2.includes('errado') || op2 === 'b'))) || 
+                    // Identifica se é Certo/Errado com total segurança
+                    const ehCE = (opcoesValidas.length === 2 && op1 === 'certo') || 
                                  (q.banca && q.banca.toUpperCase() === 'CEBRASPE' && opcoesValidas.length <= 2);
                     
                     return {
