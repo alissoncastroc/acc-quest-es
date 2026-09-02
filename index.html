@@ -27,7 +27,7 @@
     </div>
 
     <!-- Topo / Header -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-45 shadow-lg">
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center justify-between w-full sm:w-auto">
                 <div class="flex items-center gap-3">
@@ -167,7 +167,6 @@
         let usuarioAtual = "";
         let estatisticas = { respondidas: 0, acertos: 0, respondidasIds: {} };
 
-        // Verifica usuário ao carregar
         window.addEventListener('DOMContentLoaded', () => {
             const salvo = localStorage.getItem('acc_usuario');
             if (salvo) {
@@ -193,6 +192,7 @@
             document.getElementById('modal-usuario').classList.add('hidden');
             carregarEstatisticasUsuario();
             atualizarEstatisticas();
+            exibirQuestoes(questoesFiltradas);
         }
 
         function alterarUsuario() {
@@ -222,7 +222,6 @@
                 
                 if (dados.error) throw new Error(dados.error);
 
-                // Classifica cada questão com seu método
                 todasQuestoes = dados.map(q => {
                     const opcoesValidas = q.opcoes.filter(opt => opt && opt.toString().trim() !== "");
                     const op1 = opcoesValidas[0] ? opcoesValidas[0].toString().trim().toLowerCase() : '';
@@ -346,7 +345,6 @@
                     }).join('');
                 }
 
-                // Verifica se já foi respondida nesta sessão salva
                 const jaRespondida = estatisticas.respondidasIds && estatisticas.respondidasIds[qId];
 
                 return `
@@ -370,7 +368,7 @@
                                 ${jaRespondida ? 'Respondida' : 'Responder'}
                             </button>
                             <div id="resultado-${qId}" class="text-xs">
-                                ${jaRespondida ? `<span class="${jaRespondida.acertou ? 'text-emerald-400' : 'text-red-400'} font-bold">Salva: ${jaRespondida.acertou ? 'Correto!' : 'Incorreto.'} Gabarito: ${jaRespondida.gabaritoExibido}</span>` : ''}
+                                ${jaRespondida ? `<span class="${jaRespondida.acertou ? 'text-emerald-400' : 'text-red-400'} font-bold">${jaRespondida.acertou ? '<i class="fa-solid fa-circle-check"></i> Correto!' : '<i class="fa-solid fa-circle-xmark"></i> Incorreto.'} Gabarito: ${jaRespondida.gabaritoExibido}</span> ${jaRespondida.explicacao ? `<div class="text-slate-300 text-xs mt-2 bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed"><strong>Comentário:</strong> ${jaRespondida.explicacao}</div>` : ''}` : ''}
                             </div>
                         </div>
                     </div>
@@ -403,17 +401,18 @@
                     gabaritoOficial = 'ERRADO';
                     textoGabaritoExibicao = 'Errado';
                 }
+            } else {
+                textoGabaritoExibicao = gabaritoOficial;
             }
 
             const acertou = (respostaUsuario === gabaritoOficial);
 
-            // Evita contar estatísticas duas vezes para a mesma questão
             if (!estatisticas.respondidasIds[id]) {
                 estatisticas.respondidas++;
                 if (acertou) {
                     estatisticas.acertos++;
                 }
-                estatisticas.respondidasIds[id] = { acertou: acertou, gabaritoExibido: textoGabaritoExibicao };
+                estatisticas.respondidasIds[id] = { acertou: acertou, gabaritoExibido: textoGabaritoExibicao, explicacao: explicacao };
                 salvarEstatisticasUsuario();
             }
 
