@@ -134,7 +134,6 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        // URL DO GOOGLE APPS SCRIPT
         const API_URL = "https://script.google.com/macros/s/AKfycbwzh4Bb9R0QbSb0Q3FQ8BfpyV4nVLW3xfIvQVHhvnCiMharugL4qfC47TUqRdpilTgZ/exec";
 
         let todasQuestoes = [];
@@ -231,37 +230,57 @@
                 return;
             }
 
-            container.innerHTML = questoes.map((q, index) => `
-                <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4" id="questao-${q.id || index}">
-                    <div class="flex flex-wrap gap-2 text-xs">
-                        <span class="bg-blue-950 text-blue-300 border border-blue-900/50 px-2.5 py-1 rounded-lg font-medium">${q.disciplina || 'Geral'}</span>
-                        <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.banca || 'Banca não informada'}</span>
-                        <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.cargo || 'Cargo geral'}</span>
-                        <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.ano || ''}</span>
-                        <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.dificuldade || 'Média'}</span>
-                    </div>
-                    
-                    <p class="text-slate-200 text-sm md:text-base leading-relaxed whitespace-pre-line">${q.enunciado}</p>
-                    
-                    <div class="space-y-2 pt-2" id="opcoes-${q.id || index}">
-                        ${q.opcoes.map((opt, i) => {
-                            const letra = String.fromCharCode(65 + i);
-                            return `
-                                <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm">
-                                    <input type="radio" name="pergunta-${q.id || index}" value="${letra}" class="mt-0.5 accent-blue-600">
-                                    <span class="text-slate-300"><strong class="text-blue-400 mr-1">${letra})</strong> ${opt}</span>
-                                </label>`;
-                        }).join('')}
-                    </div>
+            container.innerHTML = questoes.map((q, index) => {
+                // Identifica se é Certo/Errado ou Múltipla Escolha
+                const ehCertoErrado = q.opcoes.length === 0 || (q.opcoes.length === 1 && (q.opcoes[0].toUpperCase() === 'CERTO' || q.opcoes[0].toUpperCase() === 'CERTO/ERRADO'));
 
-                    <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
-                        <button onclick="responder(this, '${q.gabarito}', \`${q.explicacao || ''}\`, '${q.id || index}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
-                            Responder
-                        </button>
-                        <div id="resultado-${q.id || index}" class="text-xs"></div>
+                let htmlOpcoes = '';
+                if (ehCertoErrado) {
+                    htmlOpcoes = `
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
+                                <input type="radio" name="pergunta-${q.id || index}" value="Certo" class="accent-blue-600"> Certo
+                            </label>
+                            <label class="flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm font-medium text-slate-300">
+                                <input type="radio" name="pergunta-${q.id || index}" value="Errado" class="accent-blue-600"> Errado
+                            </label>
+                        </div>`;
+                } else {
+                    htmlOpcoes = q.opcoes.map((opt, i) => {
+                        const letra = String.fromCharCode(65 + i);
+                        return `
+                            <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-800/60 bg-slate-950/40 hover:bg-slate-800/40 cursor-pointer transition text-xs md:text-sm">
+                                <input type="radio" name="pergunta-${q.id || index}" value="${letra}" class="mt-0.5 accent-blue-600">
+                                <span class="text-slate-300"><strong class="text-blue-400 mr-1">${letra})</strong> ${opt}</span>
+                            </label>`;
+                    }).join('');
+                }
+
+                return `
+                    <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4" id="questao-${q.id || index}">
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="bg-blue-950 text-blue-300 border border-blue-900/50 px-2.5 py-1 rounded-lg font-medium">${q.disciplina || 'Geral'}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.banca || 'Banca não informada'}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.cargo || 'Cargo geral'}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.ano || ''}</span>
+                            <span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">${q.dificuldade || 'Média'}</span>
+                        </div>
+                        
+                        <p class="text-slate-200 text-sm md:text-base leading-relaxed whitespace-pre-line">${q.enunciado}</p>
+                        
+                        <div class="space-y-2 pt-2" id="opcoes-${q.id || index}">
+                            ${htmlOpcoes}
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
+                            <button onclick="responder(this, '${q.gabarito}', \`${q.explicacao || ''}\`, '${q.id || index}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
+                                Responder
+                            </button>
+                            <div id="resultado-${q.id || index}" class="text-xs"></div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function responder(btn, gabaritoCorreto, explicacao, id) {
@@ -273,12 +292,15 @@
                 return;
             }
 
-            // Desativa o botão após responder para evitar duplicidade
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
 
             estatisticas.respondidas++;
-            if (selecionada.value.trim().toUpperCase() === gabaritoCorreto.trim().toUpperCase()) {
+            
+            const respostaUsuario = selecionada.value.trim().toUpperCase();
+            const gabaritoOficial = gabaritoCorreto.trim().toUpperCase();
+
+            if (respostaUsuario === gabaritoOficial) {
                 estatisticas.acertos++;
                 divResultado.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Correto! Gabarito: ${gabaritoCorreto}</span>`;
             } else {
