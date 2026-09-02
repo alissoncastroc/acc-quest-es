@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
-    <!-- Modal de Identificação do Usuário (Para salvar estatísticas) -->
+    <!-- Modal de Identificação do Usuário -->
     <div id="modal-usuario" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 text-center">
             <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white w-12 h-12 mx-auto rounded-2xl flex items-center justify-center shadow-lg">
@@ -17,7 +17,7 @@
             </div>
             <div>
                 <h2 class="text-lg font-bold text-white">Bem-vindo ao ACCQuestões</h2>
-                <p class="text-xs text-slate-400 mt-1">Informe seu nome para salvar seu histórico e estatísticas de estudos individualmente.</p>
+                <p class="text-xs text-slate-400 mt-1">Informe seu nome para acompanhar suas estatísticas de estudos.</p>
             </div>
             <input type="text" id="input-usuario" placeholder="Digite seu nome ou apelido..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500 transition text-center">
             <button onclick="salvarUsuario()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition text-xs shadow-lg shadow-blue-600/20">
@@ -165,7 +165,7 @@
         let todasQuestoes = [];
         let questoesFiltradas = [];
         let usuarioAtual = "";
-        let estatisticas = { respondidas: 0, acertos: 0, respondidasIds: {} };
+        let estatisticas = { respondidas: 0, acertos: 0 };
 
         window.addEventListener('DOMContentLoaded', () => {
             const salvo = localStorage.getItem('acc_usuario');
@@ -205,7 +205,7 @@
             if (salvoStats) {
                 estatisticas = JSON.parse(salvoStats);
             } else {
-                estatisticas = { respondidas: 0, acertos: 0, respondidasIds: {} };
+                estatisticas = { respondidas: 0, acertos: 0 };
             }
         }
 
@@ -345,8 +345,6 @@
                     }).join('');
                 }
 
-                const jaRespondida = estatisticas.respondidasIds && estatisticas.respondidasIds[qId];
-
                 return `
                     <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-xl space-y-4" id="questao-${qId}">
                         <div class="flex flex-wrap gap-2 text-xs">
@@ -363,20 +361,18 @@
                         </div>
 
                         <div class="flex flex-wrap items-center justify-between pt-3 border-t border-slate-800/80 gap-3">
-                            <button onclick="responder(this, '${q.gabarito}', \`${q.explicacao || ''}\`, '${qId}', ${ehCertoErrado})" 
-                                class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20 ${jaRespondida ? 'opacity-50 cursor-not-allowed' : ''}" ${jaRespondida ? 'disabled' : ''}>
-                                ${jaRespondida ? 'Respondida' : 'Responder'}
+                            <button onclick="responder(this, \`${q.gabarito || ''}\`, \`${q.explicacao || ''}\`, '${qId}', ${ehCertoErrado})" 
+                                class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20">
+                                Responder
                             </button>
-                            <div id="resultado-${qId}" class="text-xs">
-                                ${jaRespondida ? `<span class="${jaRespondida.acertou ? 'text-emerald-400' : 'text-red-400'} font-bold">${jaRespondida.acertou ? '<i class="fa-solid fa-circle-check"></i> Correto!' : '<i class="fa-solid fa-circle-xmark"></i> Incorreto.'} Gabarito: ${jaRespondida.gabaritoExibido}</span> ${jaRespondida.explicacao ? `<div class="text-slate-300 text-xs mt-2 bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed"><strong>Comentário:</strong> ${jaRespondida.explicacao}</div>` : ''}` : ''}
-                            </div>
+                            <div id="resultado-${qId}" class="text-xs"></div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function responder(btn, gabaritoCorreto, explicacao, id, ehCertoErrado) {
+        function responder(btn, gabaritoBruto, explicacao, id, ehCertoErrado) {
             const selecionada = document.querySelector(`input[name="pergunta-${id}"]:checked`);
             const divResultado = document.getElementById(`resultado-${id}`);
 
@@ -387,34 +383,38 @@
 
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
-            btn.textContent = "Respondida";
 
             const respostaUsuario = selecionada.value.trim().toUpperCase();
-            let gabaritoOficial = gabaritoCorreto.trim().toUpperCase();
-            let textoGabaritoExibicao = gabaritoCorreto.trim();
+            
+            // Tratamento blindado do gabarito oficial e do texto limpo para exibição
+            let gabaritoOficial = "";
+            let textoGabaritoExibicao = "";
+
+            const gabaritoLimpo = gabaritoBruto.trim().toUpperCase();
 
             if (ehCertoErrado) {
-                if (gabaritoOficial === 'A') {
+                if (gabaritoLimpo.includes('CERTO') || gabaritoLimpo === 'A') {
                     gabaritoOficial = 'CERTO';
                     textoGabaritoExibicao = 'Certo';
-                } else if (gabaritoOficial === 'B') {
+                } else {
                     gabaritoOficial = 'ERRADO';
                     textoGabaritoExibicao = 'Errado';
                 }
             } else {
+                // Pega a primeira letra válida (A, B, C, D ou E) se houver texto misturado
+                const matchLetra = gabaritoLimpo.match(/[A-E]/);
+                gabaritoOficial = matchLetra ? matchLetra[0] : gabaritoLimpo.charAt(0);
                 textoGabaritoExibicao = gabaritoOficial;
             }
 
             const acertou = (respostaUsuario === gabaritoOficial);
 
-            if (!estatisticas.respondidasIds[id]) {
-                estatisticas.respondidas++;
-                if (acertou) {
-                    estatisticas.acertos++;
-                }
-                estatisticas.respondidasIds[id] = { acertou: acertou, gabaritoExibido: textoGabaritoExibicao, explicacao: explicacao };
-                salvarEstatisticasUsuario();
+            // Atualiza estatísticas globais
+            estatisticas.respondidas++;
+            if (acertou) {
+                estatisticas.acertos++;
             }
+            salvarEstatisticasUsuario();
 
             if (acertou) {
                 divResultado.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> Correto! Gabarito: ${textoGabaritoExibicao}</span>`;
