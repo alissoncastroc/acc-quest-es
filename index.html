@@ -151,7 +151,7 @@
 
     <!-- Lógica JavaScript do Sistema -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwv9zO29baorR-ZOFFXM84x1cJ-NOUfYBvGhyME85Dh6vifG4UBJMvqD5g4Dx6jtZQK/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby6iHA2ham-cJHy4Zc7SsMbgi2sJGShakw5tt8Qh71JFYYtqZufmXQTlbuLDptho7ry/exec";
 
         let todasQuestoes = [];
         let questoesFiltradas = [];
@@ -304,7 +304,7 @@
 
             container.innerHTML = questoes.map((q, index) => {
                 let htmlOpcoes = '';
-                const qId = q.id || index;
+                const qId = q.id || `idx_${index}`;
                 const ehCertoErrado = q.metodo === 'Certo/Errado';
 
                 if (ehCertoErrado) {
@@ -374,16 +374,8 @@
             let textoGabaritoExibicao = "";
 
             if (ehCertoErrado) {
-                if (gabaritoLimpo.includes('CERTO') || gabaritoLimpo === 'A') {
-                    gabaritoOficial = 'CERTO';
-                    textoGabaritoExibicao = 'Certo';
-                } else if (gabaritoLimpo.includes('ERRADO') || gabaritoLimpo === 'B') {
-                    gabaritoOficial = 'ERRADO';
-                    textoGabaritoExibicao = 'Errado';
-                } else {
-                    gabaritoOficial = gabaritoLimpo;
-                    textoGabaritoExibicao = gabaritoBruto.trim();
-                }
+                gabaritoOficial = gabaritoLimpo; // CERTO ou ERRADO
+                textoGabaritoExibicao = gabaritoOficial === 'CERTO' ? 'Certo' : 'Errado';
             } else {
                 const matchLetra = gabaritoLimpo.match(/[A-E]/);
                 gabaritoOficial = matchLetra ? matchLetra[0] : gabaritoLimpo.charAt(0);
